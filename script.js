@@ -24,6 +24,47 @@ function scheduleEqualizeClassCardHeights(){
   });
 }
 
+// Mobile nav toggle (hamburger)
+function initMobileNav(){
+  const header = document.querySelector('header');
+  const toggle = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('primary-nav');
+  if(!header || !toggle || !menu) return;
+
+  const setOpen = (open) => {
+    header.classList.toggle('nav-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  const isOpen = () => header.classList.contains('nav-open');
+  const close = () => setOpen(false);
+
+  toggle.addEventListener('click', () => setOpen(!isOpen()));
+
+  // Close when clicking outside the header/menu
+  document.addEventListener('click', (e) => {
+    if(!isOpen()) return;
+    if(e.target.closest('header')) return;
+    close();
+  });
+
+  // Close on ESC
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') close();
+  });
+
+  // Close on menu item click (works for index anchors and normal links)
+  menu.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if(link) close();
+  });
+
+  // If we leave mobile breakpoint, ensure menu is closed
+  const mq = window.matchMedia('(min-width: 721px)');
+  const handle = () => { if(mq.matches) close(); };
+  if(typeof mq.addEventListener === 'function') mq.addEventListener('change', handle);
+  else if(typeof mq.addListener === 'function') mq.addListener(handle);
+}
+
 document.querySelectorAll('.tabs').forEach(group => {
   group.addEventListener('click', e => {
     const btn = e.target.closest('.tab');
@@ -65,3 +106,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 // Initial + resize equal-height pass for class cards
 scheduleEqualizeClassCardHeights();
 window.addEventListener('resize', scheduleEqualizeClassCardHeights);
+
+// Init hamburger nav after the DOM exists
+initMobileNav();

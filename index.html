@@ -16,7 +16,11 @@
       <a class="logo" href="#home">
         <img src="images/logo.png" alt="Clash of the Titans logo" />
       </a>
-      <nav aria-label="Primary">
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+        <span class="sr-only">Open menu</span>
+        <span class="nav-toggle-icon" aria-hidden="true"></span>
+      </button>
+      <nav id="primary-nav" class="nav-menu" aria-label="Primary">
         <ul>
           <li><a href="#home">Home</a></li>
           <li><a href="#classes">Classes</a></li>
@@ -90,6 +94,7 @@
           </div>
           <div id="lil-titans-structure" class="tabpanel active">
             <ul>
+              <li>Ages: 8-12</li>
               <li>16-car qualified field</li>
               <li>Field expands to 32 cars if 29 or more qualified entries are present</li>
               <li>All cars qualify together</li>
@@ -121,6 +126,7 @@
           </div>
           <div id="rising-titans-structure" class="tabpanel active">
             <ul>
+              <li>Ages: 13-18</li>
               <li>16-car qualified field</li>
               <li>Expands to 32 cars with 29+ qualified entries</li>
               <li>All cars qualify together; top qualifiers advance</li>
