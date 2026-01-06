@@ -21,7 +21,7 @@ clash-site/
 ```
 
 ## What to customize first
-1. **Classes**: Edit the class cards in `index.html` and replace rules/payouts links with your PDFs under `assets/pdf`.
+1. **Classes**: Full class rules live in `raceclasses/*.docx`. Generate readable class pages with `python tools/convert_raceclasses.py`, then update the class cards in `index.html` as needed.
 2. **Registration**: Link the “Add to Cart” buttons to WooCommerce product URLs or Stripe Checkout sessions.
 3. **Schedule**: Update dates and tracks. Each event has a dedicated page in `/events` – duplicate `round-1.html` as needed.
 4. **Points**: Replace the sample tables in the Points section. If you later want CSV import/automation, we can wire a small script.

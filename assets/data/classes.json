@@ -1,0 +1,223 @@
+{
+  "generatedAt": "2026-01-06T01:17:47.038485+00:00",
+  "classes": [
+    {
+      "title": "Lil Titans",
+      "slug": "lil-titans",
+      "pageHref": "classes/lil-titans.html",
+      "sourceDocxHref": "raceclasses/Lil Titans.docx",
+      "structureSummary": [
+        "16-car qualified field",
+        "Field expands to 32 cars if 29 or more qualified entries are present",
+        "All cars qualify together",
+        "Qualifying is based solely on reaction time",
+        "Top qualifiers advance to eliminations"
+      ],
+      "rulesSummary": [
+        "Safety",
+        "Fair competition",
+        "Program integrity"
+      ]
+    },
+    {
+      "title": "Rising Titans",
+      "slug": "rising-titans",
+      "pageHref": "classes/rising-titans.html",
+      "sourceDocxHref": "raceclasses/Rising Titans.docx",
+      "structureSummary": [
+        "16-car qualified field",
+        "Expands to 32 cars with 29+ qualified entries",
+        "All cars qualify together; top qualifiers advance",
+        "Ladder: Sportsman pairing ladder",
+        "7.90 Index"
+      ],
+      "rulesSummary": [
+        "Vehicle Type: Jr. Dragster vehicles only",
+        "Power Type: Fuel-burning internal combustion engines only \u2014 electric-powered Jr. Dragsters are prohibited",
+        "Driver Age: 13\u201318 years old License: Valid NHRA Jr. Dragster competition license required Age Verification: Required at first Rising Titans event",
+        "Index: 7.90 (1/8 mile)",
+        "Quicker than 7.50 ET or faster than 85.00 MPH \u2192 Disqualified from event"
+      ]
+    },
+    {
+      "title": "Titans - 10-5",
+      "slug": "titans-10-5",
+      "pageHref": "classes/titans-10-5.html",
+      "sourceDocxHref": "raceclasses/Titans - 10-5.docx",
+      "structureSummary": [
+        "True small-tire heritage (OG 28\u00d710.5 spirit)",
+        "Modern power with controlled parity",
+        "Simple rules, easy tech",
+        "Multiple combos capable of winning",
+        "Exciting side-by-side racing"
+      ],
+      "rulesSummary": [
+        "Wheelie bars NOT allowed / Except 4 cylinder & Rotary Engines.",
+        "Any rear suspension permitted (4-link, ladder bar, leaf)",
+        "Coil overs/shocks open",
+        "Wheelbase must remain within \u00b11 inches of OEM specification.",
+        "OEM-style body must be retained"
+      ]
+    },
+    {
+      "title": "Titans - 275 Drag Radial",
+      "slug": "titans-275-drag-radial",
+      "pageHref": "classes/titans-275-drag-radial.html",
+      "sourceDocxHref": "raceclasses/Titans - 275 Drag Radial.docx",
+      "structureSummary": [
+        "True small-tire 275 Radial Heritage (OG 275 radial spirit)",
+        "Modern power with controlled parity",
+        "Simple rules, easy tech",
+        "Multiple combos capable of winning",
+        "Exciting side-by-side racing"
+      ],
+      "rulesSummary": [
+        "Wheelie bars NOT allowed / Except 4 cylinder & Rotary Engines.",
+        "Any rear suspension permitted (4-link, ladder bar, leaf)",
+        "Coil overs/shocks open",
+        "Wheelbase must remain within \u00b11 inches of OEM specification.",
+        "OEM-style body must be retained"
+      ]
+    },
+    {
+      "title": "Titans - 4-20ish",
+      "slug": "titans-4-20ish",
+      "pageHref": "classes/titans-4-20ish.html",
+      "sourceDocxHref": "raceclasses/Titans - 4-20ish.docx",
+      "structureSummary": [
+        "All racers must be pre-registered prior to the event deadline.",
+        "Drivers Meeting: Chip Draw determines the ET Cap",
+        "Two qualifying passes determine the 32-car field.",
+        "The closest 32 racers to the ET Cap advance to eliminations (entries under the cap take priority).",
+        "Testing opportunities may be available prior to race day."
+      ],
+      "rulesSummary": [
+        "No Time Shown",
+        "Open To All Combo\u2019s",
+        "Limited to 28x10.5 slick (No W) or 275/60 Radial",
+        "Open to Class & N/T Racers",
+        "Chip Draw Sets ET Cap (4.10, 4.15, 4.20 or 4.25)"
+      ]
+    },
+    {
+      "title": "Titans - 4-50ish",
+      "slug": "titans-4-50ish",
+      "pageHref": "classes/titans-4-50ish.html",
+      "sourceDocxHref": "raceclasses/Titans - 4-50ish.docx",
+      "structureSummary": [
+        "All racers must be pre-registered prior to the event deadline.",
+        "Drivers Meeting: Chip Draw determines the ET Cap",
+        "Two qualifying passes determine the 32-car field.",
+        "The closest 32 racers to the ET Cap advance to eliminations (entries under the cap take priority).",
+        "Testing opportunities may be available prior to race day."
+      ],
+      "rulesSummary": [
+        "No Time Shown",
+        "Open To All Combo\u2019s",
+        "Any Slick or Radial Tire",
+        "Open to Class & N/T Racers",
+        "Chip Draw Sets ET Cap (4.45, 4.50, 4.55 or 4.60)"
+      ]
+    },
+    {
+      "title": "Titans - 5-30ish",
+      "slug": "titans-5-30ish",
+      "pageHref": "classes/titans-5-30ish.html",
+      "sourceDocxHref": "raceclasses/Titans - 5-30ish.docx",
+      "structureSummary": [
+        "All racers must be pre-registered prior to the event deadline.",
+        "Drivers Meeting: Chip Draw determines the ET Cap",
+        "Two qualifying passes determine the 32-car field.",
+        "The closest 32 racers to the ET Cap advance to eliminations (entries under the cap take priority).",
+        "Testing opportunities may be available prior to race day."
+      ],
+      "rulesSummary": [
+        "No Time Shown",
+        "Open To All Combo\u2019s",
+        "Any Slick or Radial Tire",
+        "Open to Class & N/T Racers",
+        "Chip Draw Sets ET Cap (5.20, 5.25, 5.30, or 5.35)"
+      ]
+    },
+    {
+      "title": "Titans - Outlaw 10-5",
+      "slug": "titans-outlaw-10-5",
+      "pageHref": "classes/titans-outlaw-10-5.html",
+      "sourceDocxHref": "raceclasses/Titans - Outlaw 10-5.docx",
+      "structureSummary": [
+        "A tribute to OG Outlaw 10.5 racing",
+        "Unlimited horsepower",
+        "Maximum chaos",
+        "The loudest, craziest, and meanest cars at the event",
+        "A place where screw blowers, big turbos, and multi-stage nitrous cars can unleash hell"
+      ],
+      "rulesSummary": [
+        "Must resemble an OEM-based or Pro Mod\u2013style DOOR CAR",
+        "Two functional doors (hinged or lift-off)",
+        "All major body panels present (hood/fenders/doors/roof/quarters/decklid/bumpers)",
+        "Nitrous I No Minimum Weight",
+        "Boost I 2600 lbs."
+      ]
+    },
+    {
+      "title": "Titans - Outlaw 275 Drag Radial",
+      "slug": "titans-outlaw-275-drag-radial",
+      "pageHref": "classes/titans-outlaw-275-drag-radial.html",
+      "sourceDocxHref": "raceclasses/Titans - Outlaw 275 Drag Radial.docx",
+      "structureSummary": [
+        "A tribute to OG Outlaw 275 Drag Radial racing",
+        "Unlimited horsepower",
+        "Maximum chaos",
+        "The loudest, craziest, and meanest cars at the event",
+        "A place where screw blowers, big turbos, and multi-stage nitrous cars can unleash hell"
+      ],
+      "rulesSummary": [
+        "No combo restrictions",
+        "If it fits a 275 Radial tire, it runs",
+        "N/T Format",
+        "Open to Class & N/T Racers",
+        "Heads-Up, 1/8-Mile Competition"
+      ]
+    },
+    {
+      "title": "Titans 4-90ish",
+      "slug": "titans-4-90ish",
+      "pageHref": "classes/titans-4-90ish.html",
+      "sourceDocxHref": "raceclasses/Titans 4-90ish.docx",
+      "structureSummary": [
+        "All racers must be pre-registered prior to the event deadline.",
+        "Drivers Meeting: Chip Draw determines the ET Cap",
+        "Two qualifying passes determine the 32-car field.",
+        "The closest 32 racers to the ET Cap advance to eliminations (entries under the cap take priority).",
+        "Testing opportunities may be available prior to race day."
+      ],
+      "rulesSummary": [
+        "No Time Shown",
+        "Open To All Combo\u2019s",
+        "Any Slick or Radial Tire",
+        "Open to Class & N/T Racers",
+        "Chip Draw Sets ET Cap (4.80, 4.85, 4.90 or 4.95)"
+      ]
+    },
+    {
+      "title": "Titans Rage - 275 Nitrous Brawl",
+      "slug": "titans-rage-275-nitrous-brawl",
+      "pageHref": "classes/titans-rage-275-nitrous-brawl.html",
+      "sourceDocxHref": "raceclasses/Titans Rage - 275 Nitrous Brawl.docx",
+      "structureSummary": [
+        "A tribute Outlaw 275 \"Nitrous Power\" Drag Radial racing",
+        "Unlimited horsepower",
+        "Maximum chaos",
+        "The loudest, craziest, and meanest cars at the event",
+        "A place where screw blowers, big turbos, and multi-stage nitrous cars can unleash hell"
+      ],
+      "rulesSummary": [
+        "Must resemble an OEM-based or Pro Mod\u2013style DOOR CAR",
+        "Two functional doors (hinged or lift-off)",
+        "All major body panels present (hood/fenders/doors/roof/quarters/deck lid/bumpers)",
+        "4.84 Bore Space \u2014 2350 lbs.",
+        "5.0 Bore Space \u2014 2400 lbs."
+      ]
+    }
+  ]
+}

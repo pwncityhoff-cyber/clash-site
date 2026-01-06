@@ -1,4 +1,29 @@
 // Tabs logic (generic)
+let _classCardRaf = 0;
+function equalizeClassCardHeights(){
+  const cards = Array.from(document.querySelectorAll('#classes .grid .card'));
+  if(cards.length === 0) return;
+
+  // Always reset first so we can measure natural heights / allow single-column layouts to flow naturally.
+  cards.forEach(c => { c.style.height = 'auto'; });
+
+  // Only equalize when we're in the multi-column layout.
+  // (The CSS turns on 3 columns at 900px; on mobile this would create lots of blank space.)
+  const shouldEqualize = window.matchMedia('(min-width: 900px)').matches;
+  if(!shouldEqualize) return;
+
+  const max = Math.max(...cards.map(c => c.getBoundingClientRect().height));
+  const h = Math.ceil(max);
+  cards.forEach(c => { c.style.height = h + 'px'; });
+}
+function scheduleEqualizeClassCardHeights(){
+  if(_classCardRaf) cancelAnimationFrame(_classCardRaf);
+  _classCardRaf = requestAnimationFrame(() => {
+    _classCardRaf = 0;
+    equalizeClassCardHeights();
+  });
+}
+
 document.querySelectorAll('.tabs').forEach(group => {
   group.addEventListener('click', e => {
     const btn = e.target.closest('.tab');
@@ -9,6 +34,7 @@ document.querySelectorAll('.tabs').forEach(group => {
     parent.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
     const active = parent.querySelector('#'+id);
     if(active) active.classList.add('active');
+    scheduleEqualizeClassCardHeights();
   });
 });
 
@@ -35,3 +61,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
     if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
   });
 });
+
+// Initial + resize equal-height pass for class cards
+scheduleEqualizeClassCardHeights();
+window.addEventListener('resize', scheduleEqualizeClassCardHeights);

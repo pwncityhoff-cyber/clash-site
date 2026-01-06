@@ -17,6 +17,9 @@ body{font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-
 h1,h2,h3{font-family:Archivo, Inter, sans-serif; letter-spacing:.5px}
 a{color:var(--accent-2); text-decoration:none}
 .container{max-width:1200px;margin:0 auto;padding:0 20px}
+img{max-width:100%; height:auto}
+section{scroll-margin-top:96px}
+footer{scroll-margin-top:96px}
 
 header{position:sticky; top:0; z-index:50; background:rgba(11,11,12,.8); backdrop-filter: blur(10px); border-bottom:1px solid var(--border)}
 .nav{display:flex; align-items:center; justify-content:space-between; padding:0; min-height:80px}
@@ -104,12 +107,39 @@ section p.lead{color:var(--muted); margin:0 0 20px}
 .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:18px}
 .card h3{margin:0 0 8px}
 .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; background:#111218; border:1px solid var(--border); color:var(--muted)}
+.tag.danger{background:rgba(225,29,72,.14); border-color:rgba(225,29,72,.55); color:#fecdd3}
+
+/* Classes: equal-height cards + button pinned to bottom */
+#classes .grid{align-items:stretch}
+#classes .card{display:flex; flex-direction:column}
+#classes .card > .row:last-child{
+  margin-top:auto;
+  width:100%;
+  justify-content:center;
+}
 
 .tabs{display:flex; gap:8px; margin:10px 0 18px}
 .tab{padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:#0f1014; cursor:pointer; color:#fff}
 .tab[aria-selected="true"]{background:linear-gradient(135deg,rgba(225,29,72,.15), rgba(245,158,11,.15)); border-color:var(--accent-2)}
 .tabpanel{display:none}
 .tabpanel.active{display:block}
+
+.doc-content{
+  font-size:15px;
+  line-height:1.65;
+  word-break:break-word;
+}
+.doc-content h1,
+.doc-content h2,
+.doc-content h3,
+.doc-content h4{
+  margin:18px 0 10px;
+}
+.doc-content p{margin:10px 0; color:var(--text)}
+.doc-content ul,
+.doc-content ol{padding-left:18px; margin:10px 0}
+.doc-content li{margin:6px 0}
+.doc-content strong{font-weight:800}
 
 table{width:100%; border-collapse:collapse;}
 th,td{border-bottom:1px solid var(--border); padding:10px 8px; text-align:left}
@@ -130,6 +160,59 @@ tbody tr:hover{background:#0e0f13}
 
 footer{padding:34px 0; color:var(--muted)}
 .row{display:flex; gap:12px; flex-wrap:wrap}
+.between{justify-content:space-between; align-items:center}
 .b700{font-weight:800}
 .space{height:8px}
 .muted{color:#a9adb7}
+
+/* Sponsors */
+.sponsors{margin-top:22px}
+.sponsors h3{margin:0 0 10px; font-size:14px; color:#cbd5e1}
+.sponsor{
+  height:34px;
+  width:auto;
+  opacity:.95;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.35));
+}
+
+/* Mobile / small screens */
+@media (max-width: 720px){
+  .container{padding:0 16px}
+
+  header{position:sticky}
+  .nav{
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    gap:10px;
+    min-height:auto;
+    padding:10px 0;
+  }
+  .logo img{height:54px}
+  .nav ul{flex-wrap:wrap; gap:8px}
+  .nav a{padding:8px 10px; font-size:14px}
+
+  section{padding:44px 0}
+  section h2{font-size:24px}
+
+  .hero-inner{grid-template-columns:1fr; gap:18px; padding:34px 0}
+  .hero h1{font-size:32px}
+  .buttons{flex-wrap:wrap}
+  .btn{padding:11px 14px}
+
+  .stat-row{grid-template-columns:repeat(2,1fr)}
+  .stat-row .stat:nth-child(3){grid-column:1 / -1}
+
+  .tabs{flex-wrap:wrap}
+  .tab{flex:1 1 auto}
+
+  .schedule-item{flex-direction:column; align-items:flex-start}
+  .schedule-item .meta{flex-wrap:wrap; gap:10px}
+
+  /* Prevent table overflow; allow horizontal scroll only when needed */
+  table{display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}
+  th,td{white-space:nowrap}
+
+  .product{flex-direction:column}
+  .product .img{width:100%; height:160px}
+}
