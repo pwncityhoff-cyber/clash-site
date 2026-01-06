@@ -290,14 +290,27 @@ footer{padding:34px 0; color:var(--muted)}
   .nav-menu a{
     display:flex;
     align-items:center;
-    justify-content:space-between;
-    padding:12px 12px;
+    justify-content:center;
+    text-align:center;
+    width:100%;
+    padding:12px 14px;
     border-radius:12px;
     color:var(--text);
-    background:transparent;
+    background:rgba(20,20,23,.55);
+    border:1px solid var(--border);
   }
-  .nav-menu a:hover{background:rgba(20,20,23,.75)}
-  .nav-menu .cta-nav{justify-content:center}
+  .nav-menu a:hover{background:rgba(20,20,23,.9)}
+  /* Keep Register CTA styling consistent with desktop */
+  .nav-menu a.cta-nav{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#0b0b0c !important;
+    font-weight:700;
+    justify-content:center;
+    border-color:transparent;
+  }
+  .nav-menu a.cta-nav:hover{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  }
 }
 
 @media (min-width: 721px){
