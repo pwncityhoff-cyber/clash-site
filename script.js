@@ -24,6 +24,85 @@ function scheduleEqualizeClassCardHeights(){
   });
 }
 
+// Points (XLSX -> table)
+function normalizeHeader(s){
+  return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function buildPointsTable({ rows, driverHeader, pointsHeader }){
+  if(!Array.isArray(rows) || rows.length === 0) return null;
+
+  const header = rows[0].map(h => String(h ?? '').trim());
+  const headerNorm = header.map(normalizeHeader);
+
+  const driverIdx = headerNorm.indexOf(normalizeHeader(driverHeader));
+  const pointsIdx = headerNorm.indexOf(normalizeHeader(pointsHeader));
+  if(driverIdx < 0 || pointsIdx < 0) return null;
+
+  const entries = rows
+    .slice(1)
+    .map(r => ({
+      driver: String(r?.[driverIdx] ?? '').trim(),
+      points: Number(r?.[pointsIdx] ?? 0)
+    }))
+    .filter(e => e.driver && Number.isFinite(e.points));
+
+  entries.sort((a, b) => b.points - a.points);
+
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>#</th><th>Driver</th><th>Points</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  entries.forEach((e, idx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${idx + 1}</td><td>${e.driver}</td><td>${e.points}</td>`;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+
+  return table;
+}
+
+async function render2025PointsFromXlsx(){
+  const host = document.getElementById('points-2025-table');
+  const status = document.getElementById('points-2025-status');
+  if(!host) return;
+
+  const xlsxUrl = 'standings/2025/2025%20Clash%20Point%20Series%20Standings.xlsx';
+
+  try {
+    if(typeof window.XLSX === 'undefined') throw new Error('XLSX library not loaded');
+
+    const res = await fetch(xlsxUrl, { cache: 'no-cache' });
+    if(!res.ok) throw new Error(`Failed to fetch standings (${res.status})`);
+    const buf = await res.arrayBuffer();
+
+    const wb = window.XLSX.read(buf, { type: 'array' });
+    const sheetName = wb.SheetNames?.[0];
+    if(!sheetName) throw new Error('No sheets found in workbook');
+
+    const ws = wb.Sheets[sheetName];
+    const rows = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    const table = buildPointsTable({
+      rows,
+      driverHeader: 'Racer Name',
+      pointsHeader: 'Total Points'
+    });
+    if(!table) throw new Error('Could not locate "Racer Name" and "Total Points" columns');
+
+    host.innerHTML = '';
+    host.appendChild(table);
+    if(status) status.remove();
+  } catch (err) {
+    if(status) status.textContent = 'Unable to load 2025 standings.';
+    // eslint-disable-next-line no-console
+    console.warn('[points] 2025 standings load failed:', err);
+  }
+}
+
 // Mobile nav toggle (hamburger)
 function initMobileNav(){
   const header = document.querySelector('header');
@@ -109,3 +188,6 @@ window.addEventListener('resize', scheduleEqualizeClassCardHeights);
 
 // Init hamburger nav after the DOM exists
 initMobileNav();
+
+// Render 2025 archive points table
+render2025PointsFromXlsx();
