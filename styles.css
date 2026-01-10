@@ -168,20 +168,127 @@ footer{padding:34px 0; color:var(--muted)}
 /* Points pager (Previous Years standings) */
 .points-pager-controls{margin-bottom:10px}
 .points-pager-controls .btn[disabled]{opacity:.55; cursor:not-allowed; pointer-events:none}
+.points-note{margin:0 0 14px}
+
+/* Points: current year TBD cards */
+#points-current .standings-card{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  min-height:240px;
+}
+#points-current .standings-card::before{
+  content:"";
+  position:absolute;
+  inset:-120px -140px auto;
+  height:220px;
+  background:
+    radial-gradient(220px 160px at 20% 60%, rgba(225,29,72,.22), transparent 65%),
+    radial-gradient(260px 190px at 70% 40%, rgba(245,158,11,.18), transparent 70%);
+  pointer-events:none;
+}
+#points-current .standings-head{position:relative; z-index:1}
+#points-current .standings-tbd-hero{position:relative; z-index:1; margin-top:6px}
+#points-current .tbd-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  letter-spacing:.06em;
+  font-size:12px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(245,158,11,.55);
+  background:linear-gradient(135deg, rgba(225,29,72,.18), rgba(245,158,11,.16));
+  color:#fde68a;
+  text-transform:uppercase;
+}
+
+#points-current .standings-skel{position:relative; z-index:1; margin-top:14px; border-top:1px solid var(--border); padding-top:12px}
+#points-current .standings-skel-head{
+  display:grid;
+  grid-template-columns:40px 1fr 70px;
+  gap:10px;
+  color:#cbd5e1;
+  font-weight:600;
+  font-size:13px;
+  opacity:.9;
+}
+#points-current .standings-skel-head .right{text-align:right}
+#points-current .standings-skel-row{margin-top:10px}
+#points-current .skel{
+  display:block;
+  height:12px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
+  background-size:240px 100%;
+  animation:skel-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skel-shimmer{
+  0%{background-position:0 0}
+  100%{background-position:240px 0}
+}
+
+#points-current .standings-actions{margin-top:auto; padding-top:12px; position:relative; z-index:1}
 .points-pager-tablewrap{
   width:100%;
   max-width:100%;
   overflow-x:auto;                 /* keep table inside the card */
   -webkit-overflow-scrolling:touch;
-  touch-action:pan-y;              /* allow vertical scroll + swipe paging */
+  touch-action:pan-x pan-y;        /* allow horizontal scroll on mobile */
 }
 .points-pager-tablewrap table{
-  width:max-content;               /* expand to fit columns */
-  min-width:100%;                  /* but never smaller than the card */
+  width:100%;
+  min-width:100%;
+  table-layout:auto;
 }
 .points-pager-tablewrap th,
 .points-pager-tablewrap td{
   white-space:nowrap;              /* keep standings readable; scroll if needed */
+  text-align:center;              /* center all columns */
+  font-variant-numeric:tabular-nums;
+  border-right:1px solid var(--border);
+}
+.points-pager-tablewrap th:last-child,
+.points-pager-tablewrap td:last-child{
+  border-right:none;
+}
+.points-pager-tablewrap thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  background:#101116;
+}
+.points-pager-tablewrap tbody tr:nth-child(odd){
+  background:rgba(255,255,255,.02);
+}
+.points-pager-tablewrap tbody tr:hover{
+  background:rgba(245,158,11,.07);
+}
+.points-pager-tablewrap tbody td:last-child{
+  font-weight:800;
+  color:var(--accent-2);
+}
+
+@media (max-width: 720px){
+  .points-pager-controls{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:8px;
+  }
+  .points-pager-controls .row{width:100%}
+  .points-pager-controls .btn{padding:10px 12px}
+  .points-pager-tablewrap th,
+  .points-pager-tablewrap td{
+    padding:8px 6px;
+    font-size:13px;
+  }
+  /* Override global mobile table rule for this table (we already provide scrolling via wrapper). */
+  .points-pager-tablewrap table{
+    display:table;
+    overflow:visible;
+  }
 }
 
 /* Sponsors */

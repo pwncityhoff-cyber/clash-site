@@ -68,6 +68,78 @@ function parsePointsRows({ rows, driverHeader, pointsHeader }){
   return { entries, eventCols };
 }
 
+// Current year standings (pre-season TBD)
+function renderCurrentYearTbdStandings(){
+  const mount = document.getElementById('points-current-grid');
+  if(!mount) return;
+
+  const classCards = Array.from(document.querySelectorAll('#classes .grid > article.card, #classes .grid > .card'));
+  if(classCards.length === 0){
+    mount.innerHTML = '<div class="card"><h3>Standings</h3><p class="muted">No classes found.</p></div>';
+    return;
+  }
+
+  const classes = classCards.map(card => {
+    const name = (card.querySelector('h3')?.textContent || '').trim();
+    const tagEl = card.querySelector('.tag');
+    const tag = (tagEl?.textContent || '').trim();
+    const tagClass = tagEl ? tagEl.className : 'tag';
+    const href = card.querySelector('a.btn.primary')?.getAttribute('href') || '';
+    return { name, tag, tagClass, href };
+  }).filter(c => c.name);
+
+  mount.innerHTML = '';
+
+  for(const c of classes){
+    const el = document.createElement('div');
+    el.className = 'card standings-card standings-tbd';
+
+    const top = document.createElement('div');
+    top.className = 'row between standings-head';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = c.name;
+    top.appendChild(h3);
+
+    if(c.tag){
+      const pill = document.createElement('span');
+      pill.className = c.tagClass || 'tag';
+      pill.textContent = c.tag;
+      top.appendChild(pill);
+    }
+
+    el.appendChild(top);
+
+    const tbd = document.createElement('div');
+    tbd.className = 'standings-tbd-hero';
+    tbd.innerHTML = '<div class="tbd-badge">TBD</div><div class="muted">No points yet — check back after Round 1.</div>';
+    el.appendChild(tbd);
+
+    const sk = document.createElement('div');
+    sk.className = 'standings-skel';
+    sk.innerHTML =
+      '<div class="standings-skel-head"><span>#</span><span>Racer</span><span class="right">Pts</span></div>' +
+      '<div class="standings-skel-row"><span class="skel"></span></div>' +
+      '<div class="standings-skel-row"><span class="skel"></span></div>' +
+      '<div class="standings-skel-row"><span class="skel"></span></div>';
+    el.appendChild(sk);
+
+    const actions = document.createElement('div');
+    actions.className = 'row standings-actions';
+
+    if(c.href){
+      const a = document.createElement('a');
+      a.className = 'btn';
+      a.href = c.href;
+      a.textContent = 'Class Info';
+      actions.appendChild(a);
+    }
+
+    el.appendChild(actions);
+    mount.appendChild(el);
+  }
+}
+
 function buildPagedPointsView({ parsed, pageSize }){
   if(!parsed) return null;
 
@@ -127,6 +199,13 @@ function buildPagedPointsView({ parsed, pageSize }){
   const tbody = document.createElement('tbody');
   table.appendChild(tbody);
 
+  function formatCellValue(v){
+    if(v === null || v === undefined) return '-';
+    const s = String(v);
+    if(s.trim() === '') return '-';
+    return s;
+  }
+
   let page = 0;
   const pageCount = Math.max(1, Math.ceil(entries.length / size));
 
@@ -165,7 +244,7 @@ function buildPagedPointsView({ parsed, pageSize }){
       for(let j = 0; j < eventCols.length; j++){
         const td = document.createElement('td');
         const v = (e.events && e.events.length > j) ? e.events[j] : null;
-        td.textContent = (v === null || v === undefined) ? '' : String(v);
+        td.textContent = formatCellValue(v);
         tr.appendChild(td);
       }
 
@@ -180,7 +259,8 @@ function buildPagedPointsView({ parsed, pageSize }){
   btnPrev.addEventListener('click', () => { page = clampPage(page - 1); render(); });
   btnNext.addEventListener('click', () => { page = clampPage(page + 1); render(); });
 
-  // Swipe left/right to change pages (mobile)
+  // Swipe left/right on controls to change pages (mobile).
+  // (Table itself needs horizontal scroll for many race columns.)
   let touchStartX = null;
   let touchStartY = null;
 
@@ -208,11 +288,158 @@ function buildPagedPointsView({ parsed, pageSize }){
     render();
   }
 
-  tableWrap.addEventListener('touchstart', onTouchStart, { passive: true });
-  tableWrap.addEventListener('touchend', onTouchEnd, { passive: true });
+  controls.addEventListener('touchstart', onTouchStart, { passive: true });
+  controls.addEventListener('touchend', onTouchEnd, { passive: true });
 
   render();
   return root;
+}
+
+function getEventPointsValue(entry, eventIndex){
+  const v = (entry && entry.events && entry.events.length > eventIndex) ? entry.events[eventIndex] : null;
+  if(v === null || v === undefined) return null;
+  const n = Number(v);
+  if(!Number.isFinite(n)) return null;
+  return n;
+}
+
+function sanitizeFilename(s){
+  return String(s || '')
+    .replace(/[\\\/:*?"<>|]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function generateRacePointsPdf({ parsed, eventIndex }){
+  if(!parsed || !parsed.eventCols || !parsed.entries) return;
+  const eventCol = (parsed.eventCols.length > eventIndex) ? parsed.eventCols[eventIndex] : null;
+  if(!eventCol) return;
+
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    throw new Error('PDF library not loaded');
+  }
+
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+
+  const title = String(eventCol.name || ('Race #' + (eventIndex + 1)));
+  const filename = sanitizeFilename('2025 ' + title + ' Points.pdf') || '2025 Race Points.pdf';
+
+  const rows = parsed.entries
+    .map(e => ({ driver: e.driver, points: getEventPointsValue(e, eventIndex) }))
+    .filter(r => r.points !== null && r.points > 0)
+    .sort((a, b) => b.points - a.points);
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const marginX = 40;
+  let y = 52;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.text(title + ' — Points Earners', marginX, y);
+  y += 20;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.text('Generated from 2025 points standings', marginX, y);
+  y += 18;
+
+  // Header
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.text('#', marginX, y);
+  doc.text('Driver', marginX + 30, y);
+  doc.text('Points', pageW - marginX - 40, y, { align: 'right' });
+  y += 10;
+  doc.setDrawColor(120);
+  doc.line(marginX, y, pageW - marginX, y);
+  y += 16;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+
+  if(rows.length === 0){
+    doc.text('No points recorded for this race yet.', marginX, y);
+  } else {
+    const lineH = 16;
+    const maxY = doc.internal.pageSize.getHeight() - 54;
+
+    for(let i = 0; i < rows.length; i++){
+      if(y > maxY){
+        doc.addPage();
+        y = 52;
+        doc.setFont('helvetica', 'bold');
+        doc.text(title + ' — Points Earners (cont.)', marginX, y);
+        y += 24;
+        doc.setFont('helvetica', 'normal');
+      }
+
+      const rank = String(i + 1);
+      const driver = String(rows[i].driver || '-');
+      const points = String(rows[i].points);
+
+      doc.text(rank, marginX, y);
+      doc.text(driver, marginX + 30, y, { maxWidth: pageW - (marginX * 2) - 90 });
+      doc.text(points, pageW - marginX - 40, y, { align: 'right' });
+      y += lineH;
+    }
+  }
+
+  doc.save(filename);
+}
+
+function populatePastRaces2025Cards(parsed){
+  const cards = Array.from(document.querySelectorAll('#media .card[data-points-race-index]'));
+  if(cards.length === 0) return;
+
+  // Only fill the first 5 event columns to match the 5 cards.
+  const eventCols = (parsed && parsed.eventCols) ? parsed.eventCols : [];
+
+  for(let i = 0; i < cards.length; i++){
+    const card = cards[i];
+    const idx = Number(card.getAttribute('data-points-race-index'));
+    if(!Number.isFinite(idx)) continue;
+
+    const eventName = (eventCols[idx] && eventCols[idx].name) ? eventCols[idx].name : ('Round ' + (idx + 1));
+
+    const titleEl = card.querySelector('[data-role="race-title"]');
+    if(titleEl) titleEl.textContent = 'Round ' + (idx + 1) + ' • ' + eventName;
+
+    // Top 3 earners (points > 0)
+    const top3 = (parsed && parsed.entries ? parsed.entries : [])
+      .map(e => ({ driver: e.driver, points: getEventPointsValue(e, idx) }))
+      .filter(r => r.points !== null && r.points > 0)
+      .sort((a, b) => b.points - a.points)
+      .slice(0, 3);
+
+    const tbody = card.querySelector('tbody[data-role="race-top3"]');
+    if(tbody){
+      tbody.innerHTML = '';
+      for(let r = 0; r < 3; r++){
+        const row = document.createElement('tr');
+        const entry = top3[r] || null;
+        const driver = entry ? entry.driver : '-';
+        const points = entry ? String(entry.points) : '-';
+        row.innerHTML = '<td>' + (r + 1) + '</td><td>' + driver + '</td><td>' + points + '</td>';
+        tbody.appendChild(row);
+      }
+    }
+
+    const pdfLink = card.querySelector('a[data-role="race-pdf"]');
+    if(pdfLink && !pdfLink._racePdfBound){
+      pdfLink._racePdfBound = true;
+      pdfLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        try {
+          generateRacePointsPdf({ parsed: window._points2025Parsed || parsed, eventIndex: idx });
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.warn('[pdf] failed to generate:', err);
+          alert('Unable to generate PDF. ' + ((err && err.message) ? err.message : ''));
+        }
+      });
+    }
+  }
 }
 
 async function render2025PointsFromXlsx(){
@@ -266,6 +493,10 @@ async function render2025PointsFromXlsx(){
     host.innerHTML = '';
     host.appendChild(view);
     if(status) status.remove();
+
+    // Store for PDF generation handlers
+    window._points2025Parsed = parsed;
+    populatePastRaces2025Cards(parsed);
   } catch (err) {
     const msg = (err && err.message) ? err.message : String(err);
     if(status) status.textContent = 'Unable to load 2025 standings: ' + msg;
@@ -359,6 +590,9 @@ window.addEventListener('resize', scheduleEqualizeClassCardHeights);
 
 // Init hamburger nav after the DOM exists
 initMobileNav();
+
+// Render current year (pre-season TBD) cards
+renderCurrentYearTbdStandings();
 
 // Render 2025 archive points table
 render2025PointsFromXlsx();

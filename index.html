@@ -674,41 +674,19 @@
       </div>
 
       <div id="points-current" class="tabpanel active">
-        <div class="grid cols-2">
-          <div class="card">
-            <h3>Outlaw 275</h3>
-            <table>
-              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>Driver A</td><td>220</td></tr>
-                <tr><td>2</td><td>Driver B</td><td>198</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="card">
-            <h3>Small Tire</h3>
-            <table>
-              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>Driver C</td><td>205</td></tr>
-                <tr><td>2</td><td>Driver D</td><td>199</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <p class="muted points-note">Standings will populate after the first event. Until then, each class is marked TBD.</p>
+        <div id="points-current-grid" class="grid cols-3" aria-label="Current year standings by class"></div>
       </div>
 
       <div id="points-archive" class="tabpanel">
-        <div class="grid cols-2">
-          <div class="card">
-            <h3>2025 Point Series</h3>
-            <p class="muted" id="points-2025-status">Loading 2025 standings…</p>
-            <div id="points-2025-table"></div>
-            <div class="space"></div>
-            <a class="btn" href="standings/2025/2025%20Clash%20Point%20Series%20Standings.xlsx" download>
-              Download 2025 Standings (XLSX)
-            </a>
-          </div>
+        <div class="card">
+          <h3>2025 Point Series</h3>
+          <p class="muted" id="points-2025-status">Loading 2025 standings…</p>
+          <div id="points-2025-table"></div>
+          <div class="space"></div>
+          <a class="btn" href="standings/2025/2025%20Clash%20Point%20Series%20Standings.xlsx" download>
+            Download 2025 Standings (XLSX)
+          </a>
         </div>
       </div>
     </div>
@@ -720,8 +698,8 @@
       <h2>Past Races</h2>
       <p class="lead">Dedicated pages for each round with photos, videos, ladders, and results.</p>
 
-      <div class="card">
-        <h3>Round 1 • Track Name • City, ST • Mar 14–15</h3>
+      <div class="card" data-points-race-index="0">
+        <h3 data-role="race-title">Round 1 • Track Name • City, ST • Mar 14–15</h3>
         <div class="grid cols-2">
           <div>
             <h4>Highlights</h4>
@@ -735,20 +713,21 @@
           <div>
             <h4>Results</h4>
             <table>
-              <thead><tr><th>Class</th><th>Winner</th><th>Runner-up</th></tr></thead>
-              <tbody>
-                <tr><td>Outlaw 275</td><td>Driver A</td><td>Driver B</td></tr>
-                <tr><td>Small Tire</td><td>Driver C</td><td>Driver D</td></tr>
+              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
+              <tbody data-role="race-top3">
+                <tr><td>1</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>-</td><td>-</td></tr>
+                <tr><td>3</td><td>-</td><td>-</td></tr>
               </tbody>
             </table>
             <div class="space"></div>
-            <a class="btn" href="assets/pdf/round-1-ladders.pdf">Full Ladder (PDF)</a>
+            <a class="btn" href="#" data-role="race-pdf">Full Ladder (PDF)</a>
           </div>
         </div>
       </div>
 
-      <div class="card">
-        <h3>Round 2 • Track Name • May 9–10</h3>
+      <div class="card" data-points-race-index="1">
+        <h3 data-role="race-title">Round 2 • Track Name • May 9–10</h3>
         <div class="grid cols-2">
           <div>
             <h4>Highlights</h4>
@@ -762,13 +741,99 @@
           <div>
             <h4>Results</h4>
             <table>
-              <thead><tr><th>Class</th><th>Winner</th><th>Runner-up</th></tr></thead>
-              <tbody>
-                <tr><td>Street</td><td>Driver E</td><td>Driver F</td></tr>
+              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
+              <tbody data-role="race-top3">
+                <tr><td>1</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>-</td><td>-</td></tr>
+                <tr><td>3</td><td>-</td><td>-</td></tr>
               </tbody>
             </table>
             <div class="space"></div>
-            <a class="btn" href="assets/pdf/round-2-ladders.pdf">Full Ladder (PDF)</a>
+            <a class="btn" href="#" data-role="race-pdf">Full Ladder (PDF)</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-points-race-index="2">
+        <h3 data-role="race-title">Round 3 • Track Name • Date</h3>
+        <div class="grid cols-2">
+          <div>
+            <h4>Highlights</h4>
+            <div class="media-grid">
+              <a class="thumb" href="#" aria-label="Watch highlight video">Video</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+            </div>
+          </div>
+          <div>
+            <h4>Results</h4>
+            <table>
+              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
+              <tbody data-role="race-top3">
+                <tr><td>1</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>-</td><td>-</td></tr>
+                <tr><td>3</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table>
+            <div class="space"></div>
+            <a class="btn" href="#" data-role="race-pdf">Full Ladder (PDF)</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-points-race-index="3">
+        <h3 data-role="race-title">Round 4 • Track Name • Date</h3>
+        <div class="grid cols-2">
+          <div>
+            <h4>Highlights</h4>
+            <div class="media-grid">
+              <a class="thumb" href="#" aria-label="Watch highlight video">Video</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+            </div>
+          </div>
+          <div>
+            <h4>Results</h4>
+            <table>
+              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
+              <tbody data-role="race-top3">
+                <tr><td>1</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>-</td><td>-</td></tr>
+                <tr><td>3</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table>
+            <div class="space"></div>
+            <a class="btn" href="#" data-role="race-pdf">Full Ladder (PDF)</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-points-race-index="4">
+        <h3 data-role="race-title">Round 5 • Track Name • Date</h3>
+        <div class="grid cols-2">
+          <div>
+            <h4>Highlights</h4>
+            <div class="media-grid">
+              <a class="thumb" href="#" aria-label="Watch highlight video">Video</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+              <a class="thumb" href="#">Photo</a>
+            </div>
+          </div>
+          <div>
+            <h4>Results</h4>
+            <table>
+              <thead><tr><th>#</th><th>Driver</th><th>Points</th></tr></thead>
+              <tbody data-role="race-top3">
+                <tr><td>1</td><td>-</td><td>-</td></tr>
+                <tr><td>2</td><td>-</td><td>-</td></tr>
+                <tr><td>3</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table>
+            <div class="space"></div>
+            <a class="btn" href="#" data-role="race-pdf">Full Ladder (PDF)</a>
           </div>
         </div>
       </div>
@@ -826,6 +891,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
   </footer>
 </body>
