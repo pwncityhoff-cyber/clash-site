@@ -32,7 +32,7 @@ function normalizeHeader(s){
 function buildPointsTable({ rows, driverHeader, pointsHeader }){
   if(!Array.isArray(rows) || rows.length === 0) return null;
 
-  const header = rows[0].map(h => String(h ?? '').trim());
+  const header = rows[0].map(h => String((h === null || h === undefined) ? '' : h).trim());
   const headerNorm = header.map(normalizeHeader);
 
   const driverIdx = headerNorm.indexOf(normalizeHeader(driverHeader));
@@ -42,8 +42,8 @@ function buildPointsTable({ rows, driverHeader, pointsHeader }){
   const entries = rows
     .slice(1)
     .map(r => ({
-      driver: String(r?.[driverIdx] ?? '').trim(),
-      points: Number(r?.[pointsIdx] ?? 0)
+      driver: String((r && r[driverIdx] !== null && r[driverIdx] !== undefined) ? r[driverIdx] : '').trim(),
+      points: Number((r && r[pointsIdx] !== null && r[pointsIdx] !== undefined) ? r[pointsIdx] : 0)
     }))
     .filter(e => e.driver && Number.isFinite(e.points));
 
@@ -57,7 +57,7 @@ function buildPointsTable({ rows, driverHeader, pointsHeader }){
   const tbody = document.createElement('tbody');
   entries.forEach((e, idx) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${idx + 1}</td><td>${e.driver}</td><td>${e.points}</td>`;
+    tr.innerHTML = '<td>' + (idx + 1) + '</td><td>' + e.driver + '</td><td>' + e.points + '</td>';
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
@@ -73,14 +73,31 @@ async function render2025PointsFromXlsx(){
   const xlsxUrl = 'standings/2025/2025%20Clash%20Point%20Series%20Standings.xlsx';
 
   try {
+    // If opened directly from disk, many browsers block/hang local fetch() calls.
+    if (window.location && window.location.protocol === 'file:') {
+      if(status) status.textContent = 'To load the 2025 table, open this site from a web server (not a file). Example: run "python -m http.server" in the project folder, then visit http://localhost:8000.';
+      return;
+    }
+
     if(typeof window.XLSX === 'undefined') throw new Error('XLSX library not loaded');
 
-    const res = await fetch(xlsxUrl, { cache: 'no-cache' });
-    if(!res.ok) throw new Error(`Failed to fetch standings (${res.status})`);
+    if(status) status.textContent = 'Loading 2025 standings…';
+
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutMs = 15000;
+    const to = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+
+    const res = await fetch(xlsxUrl, {
+      cache: 'no-cache',
+      signal: controller ? controller.signal : undefined
+    });
+
+    if(to) clearTimeout(to);
+    if(!res.ok) throw new Error('Failed to fetch standings (' + res.status + ')');
     const buf = await res.arrayBuffer();
 
     const wb = window.XLSX.read(buf, { type: 'array' });
-    const sheetName = wb.SheetNames?.[0];
+    const sheetName = (wb.SheetNames && wb.SheetNames[0]) ? wb.SheetNames[0] : null;
     if(!sheetName) throw new Error('No sheets found in workbook');
 
     const ws = wb.Sheets[sheetName];
@@ -97,7 +114,8 @@ async function render2025PointsFromXlsx(){
     host.appendChild(table);
     if(status) status.remove();
   } catch (err) {
-    if(status) status.textContent = 'Unable to load 2025 standings.';
+    const msg = (err && err.message) ? err.message : String(err);
+    if(status) status.textContent = 'Unable to load 2025 standings: ' + msg;
     // eslint-disable-next-line no-console
     console.warn('[points] 2025 standings load failed:', err);
   }
