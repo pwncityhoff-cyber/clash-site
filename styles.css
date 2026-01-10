@@ -168,7 +168,21 @@ footer{padding:34px 0; color:var(--muted)}
 /* Points pager (Previous Years standings) */
 .points-pager-controls{margin-bottom:10px}
 .points-pager-controls .btn[disabled]{opacity:.55; cursor:not-allowed; pointer-events:none}
-.points-pager-tablewrap{touch-action:pan-y}
+.points-pager-tablewrap{
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;                 /* keep table inside the card */
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;              /* allow vertical scroll + swipe paging */
+}
+.points-pager-tablewrap table{
+  width:max-content;               /* expand to fit columns */
+  min-width:100%;                  /* but never smaller than the card */
+}
+.points-pager-tablewrap th,
+.points-pager-tablewrap td{
+  white-space:nowrap;              /* keep standings readable; scroll if needed */
+}
 
 /* Sponsors */
 .sponsors{margin-top:22px}
