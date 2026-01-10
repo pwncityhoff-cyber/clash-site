@@ -29,7 +29,7 @@ function normalizeHeader(s){
   return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
-function buildPointsTable({ rows, driverHeader, pointsHeader }){
+function parsePointsRows({ rows, driverHeader, pointsHeader }){
   if(!Array.isArray(rows) || rows.length === 0) return null;
 
   const header = rows[0].map(h => String((h === null || h === undefined) ? '' : h).trim());
@@ -39,30 +39,180 @@ function buildPointsTable({ rows, driverHeader, pointsHeader }){
   const pointsIdx = headerNorm.indexOf(normalizeHeader(pointsHeader));
   if(driverIdx < 0 || pointsIdx < 0) return null;
 
+  const eventCols = [];
+  for(let i = 0; i < header.length; i++){
+    if(i === driverIdx || i === pointsIdx) continue;
+    if(!header[i]) continue;
+    eventCols.push({ idx: i, name: header[i] });
+  }
+
   const entries = rows
     .slice(1)
-    .map(r => ({
-      driver: String((r && r[driverIdx] !== null && r[driverIdx] !== undefined) ? r[driverIdx] : '').trim(),
-      points: Number((r && r[pointsIdx] !== null && r[pointsIdx] !== undefined) ? r[pointsIdx] : 0)
-    }))
-    .filter(e => e.driver && Number.isFinite(e.points));
+    .map(r => {
+      const driver = String((r && r[driverIdx] !== null && r[driverIdx] !== undefined) ? r[driverIdx] : '').trim();
+      const total = Number((r && r[pointsIdx] !== null && r[pointsIdx] !== undefined) ? r[pointsIdx] : 0);
 
-  entries.sort((a, b) => b.points - a.points);
+      const events = [];
+      for(let j = 0; j < eventCols.length; j++){
+        const c = eventCols[j];
+        const v = (r && r[c.idx] !== null && r[c.idx] !== undefined) ? r[c.idx] : null;
+        events.push(v);
+      }
+
+      return { driver, total, events };
+    })
+    .filter(e => e.driver && Number.isFinite(e.total));
+
+  entries.sort((a, b) => b.total - a.total);
+
+  return { entries, eventCols };
+}
+
+function buildPagedPointsView({ parsed, pageSize }){
+  if(!parsed) return null;
+
+  const entries = parsed.entries || [];
+  const eventCols = parsed.eventCols || [];
+  const size = pageSize || 10;
+
+  const root = document.createElement('div');
+  root.className = 'points-pager';
+
+  const controls = document.createElement('div');
+  controls.className = 'row between points-pager-controls';
+
+  const left = document.createElement('div');
+  left.className = 'row';
+
+  const btnPrev = document.createElement('button');
+  btnPrev.className = 'btn';
+  btnPrev.type = 'button';
+  btnPrev.textContent = '◀ Prev';
+
+  const btnNext = document.createElement('button');
+  btnNext.className = 'btn';
+  btnNext.type = 'button';
+  btnNext.textContent = 'Next ▶';
+
+  const meta = document.createElement('span');
+  meta.className = 'muted';
+
+  left.appendChild(btnPrev);
+  left.appendChild(btnNext);
+  controls.appendChild(left);
+  controls.appendChild(meta);
+  root.appendChild(controls);
+
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'points-pager-tablewrap';
+  root.appendChild(tableWrap);
 
   const table = document.createElement('table');
+  tableWrap.appendChild(table);
+
   const thead = document.createElement('thead');
-  thead.innerHTML = '<tr><th>#</th><th>Driver</th><th>Points</th></tr>';
+  const trh = document.createElement('tr');
+  trh.innerHTML = '<th>#</th><th>Racer</th>';
+  for(let i = 0; i < eventCols.length; i++){
+    const th = document.createElement('th');
+    th.textContent = eventCols[i].name;
+    trh.appendChild(th);
+  }
+  const thTotal = document.createElement('th');
+  thTotal.textContent = 'Total Points';
+  trh.appendChild(thTotal);
+  thead.appendChild(trh);
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
-  entries.forEach((e, idx) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (idx + 1) + '</td><td>' + e.driver + '</td><td>' + e.points + '</td>';
-    tbody.appendChild(tr);
-  });
   table.appendChild(tbody);
 
-  return table;
+  let page = 0;
+  const pageCount = Math.max(1, Math.ceil(entries.length / size));
+
+  function clampPage(p){
+    if(p < 0) return 0;
+    if(p > pageCount - 1) return pageCount - 1;
+    return p;
+  }
+
+  function render(){
+    page = clampPage(page);
+    const start = page * size;
+    const end = Math.min(entries.length, start + size);
+
+    // Update meta + buttons
+    if(entries.length === 0) meta.textContent = 'No standings found.';
+    else meta.textContent = 'Showing ' + (start + 1) + '–' + end + ' of ' + entries.length;
+
+    btnPrev.disabled = (page <= 0);
+    btnNext.disabled = (page >= pageCount - 1);
+
+    // Render rows
+    tbody.innerHTML = '';
+    for(let i = start; i < end; i++){
+      const e = entries[i];
+      const tr = document.createElement('tr');
+
+      const tdRank = document.createElement('td');
+      tdRank.textContent = String(i + 1);
+      tr.appendChild(tdRank);
+
+      const tdDriver = document.createElement('td');
+      tdDriver.textContent = e.driver;
+      tr.appendChild(tdDriver);
+
+      for(let j = 0; j < eventCols.length; j++){
+        const td = document.createElement('td');
+        const v = (e.events && e.events.length > j) ? e.events[j] : null;
+        td.textContent = (v === null || v === undefined) ? '' : String(v);
+        tr.appendChild(td);
+      }
+
+      const tdTotal = document.createElement('td');
+      tdTotal.textContent = String(e.total);
+      tr.appendChild(tdTotal);
+
+      tbody.appendChild(tr);
+    }
+  }
+
+  btnPrev.addEventListener('click', () => { page = clampPage(page - 1); render(); });
+  btnNext.addEventListener('click', () => { page = clampPage(page + 1); render(); });
+
+  // Swipe left/right to change pages (mobile)
+  let touchStartX = null;
+  let touchStartY = null;
+
+  function onTouchStart(e){
+    const t = e.touches && e.touches[0];
+    if(!t) return;
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+  }
+
+  function onTouchEnd(e){
+    if(touchStartX === null || touchStartY === null) return;
+    const t = e.changedTouches && e.changedTouches[0];
+    if(!t) return;
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    touchStartX = null;
+    touchStartY = null;
+
+    if(Math.abs(dx) < 60) return;
+    if(Math.abs(dx) < Math.abs(dy)) return;
+
+    if(dx < 0) page = clampPage(page + 1);
+    else page = clampPage(page - 1);
+    render();
+  }
+
+  tableWrap.addEventListener('touchstart', onTouchStart, { passive: true });
+  tableWrap.addEventListener('touchend', onTouchEnd, { passive: true });
+
+  render();
+  return root;
 }
 
 async function render2025PointsFromXlsx(){
@@ -103,15 +253,18 @@ async function render2025PointsFromXlsx(){
     const ws = wb.Sheets[sheetName];
     const rows = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-    const table = buildPointsTable({
+    const parsed = parsePointsRows({
       rows,
       driverHeader: 'Racer Name',
       pointsHeader: 'Total Points'
     });
-    if(!table) throw new Error('Could not locate "Racer Name" and "Total Points" columns');
+    if(!parsed) throw new Error('Could not locate "Racer Name" and "Total Points" columns');
+
+    const view = buildPagedPointsView({ parsed, pageSize: 10 });
+    if(!view) throw new Error('Could not build standings table');
 
     host.innerHTML = '';
-    host.appendChild(table);
+    host.appendChild(view);
     if(status) status.remove();
   } catch (err) {
     const msg = (err && err.message) ? err.message : String(err);

@@ -165,6 +165,11 @@ footer{padding:34px 0; color:var(--muted)}
 .space{height:8px}
 .muted{color:#a9adb7}
 
+/* Points pager (Previous Years standings) */
+.points-pager-controls{margin-bottom:10px}
+.points-pager-controls .btn[disabled]{opacity:.55; cursor:not-allowed; pointer-events:none}
+.points-pager-tablewrap{touch-action:pan-y}
+
 /* Sponsors */
 .sponsors{margin-top:22px}
 .sponsors h3{margin:0 0 10px; font-size:14px; color:#cbd5e1}
