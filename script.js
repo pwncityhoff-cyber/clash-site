@@ -546,6 +546,291 @@ function initMobileNav(){
   else if(typeof mq.addListener === 'function') mq.addListener(handle);
 }
 
+// Mobile: collapsible sections (accordion-style)
+function initMobileCollapsibleSections(){
+  const mq = window.matchMedia('(max-width: 720px)');
+
+  function ensureStructure(){
+    const sections = Array.from(document.querySelectorAll('section[id]:not(.hero)'));
+
+    for(const section of sections){
+      if(section.dataset.collapsibleReady === 'true') continue;
+
+      const id = section.id;
+      const container = section.querySelector(':scope > .container') || section;
+
+      // Prefer the top heading of the section.
+      const heading = container.querySelector(':scope > h2, :scope > h1, :scope > h3');
+      if(!heading) continue;
+
+      // Build header row (heading + toggle button)
+      const headerRow = document.createElement('div');
+      headerRow.className = 'section-collapsible-header';
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'section-collapsible-toggle';
+      toggle.setAttribute('aria-label', 'Toggle ' + (heading.textContent || 'section'));
+
+      const body = document.createElement('div');
+      body.className = 'section-collapsible-body';
+      const bodyId = 'section-body-' + id;
+      body.id = bodyId;
+
+      toggle.setAttribute('aria-controls', bodyId);
+
+      // Move everything after the heading into the body wrapper.
+      const start = heading.nextSibling;
+      let node = start;
+      while(node){
+        const next = node.nextSibling;
+        body.appendChild(node);
+        node = next;
+      }
+
+      // Replace heading with header row containing heading + toggle.
+      headerRow.appendChild(heading);
+      headerRow.appendChild(toggle);
+
+      container.insertBefore(headerRow, container.firstChild);
+      container.insertBefore(body, headerRow.nextSibling);
+
+      section.classList.add('section-collapsible');
+      section.dataset.collapsibleReady = 'true';
+
+      toggle.addEventListener('click', () => {
+        const expanded = section.getAttribute('data-expanded') === 'true';
+        setExpanded(section, !expanded);
+      });
+    }
+  }
+
+  function setExpanded(section, expanded){
+    section.setAttribute('data-expanded', expanded ? 'true' : 'false');
+    const btn = section.querySelector(':scope .section-collapsible-toggle');
+    if(btn) btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
+
+  function applyStateForBreakpoint(){
+    ensureStructure();
+
+    const sections = Array.from(document.querySelectorAll('section.section-collapsible[id]:not(.hero)'));
+    if(!mq.matches){
+      // Desktop/tablet: always expanded (but keep structure; CSS hides toggle)
+      sections.forEach(s => setExpanded(s, true));
+      return;
+    }
+
+    // Mobile: collapse everything except Classes.
+    for(const s of sections){
+      const shouldExpand = (s.id === 'classes');
+      setExpanded(s, shouldExpand);
+    }
+  }
+
+  // Expand a section by id (mobile only), then return it.
+  function expandIfCollapsible(targetId){
+    if(!targetId) return null;
+    const el = document.getElementById(targetId);
+    if(!el) return null;
+    if(!mq.matches) return el;
+    if(el.matches && el.matches('section.section-collapsible')) setExpanded(el, true);
+    return el;
+  }
+
+  // Expose for anchor scroll logic
+  window.__expandCollapsibleSection = expandIfCollapsible;
+
+  applyStateForBreakpoint();
+
+  const handle = () => applyStateForBreakpoint();
+  if(typeof mq.addEventListener === 'function') mq.addEventListener('change', handle);
+  else if(typeof mq.addListener === 'function') mq.addListener(handle);
+}
+
+// Past Races: scrollable photo galleries + lightbox
+function initPastRacesPhotoGalleries(){
+  const galleryEls = Array.from(document.querySelectorAll('.thumb-gallery[data-manifest]'));
+  if(galleryEls.length === 0) return;
+
+  const lightboxEl = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxCaption = document.getElementById('lightbox-caption');
+  if(!lightboxEl || !lightboxImg || !lightboxCaption) return;
+
+  const active = {
+    photos: [],
+    index: 0,
+    title: '',
+    lastFocus: null,
+  };
+
+  function setLightboxOpen(isOpen){
+    if(isOpen){
+      lightboxEl.hidden = false;
+      active.lastFocus = document.activeElement;
+      document.body.style.overflow = 'hidden';
+      lightboxEl.setAttribute('aria-hidden', 'false');
+    }else{
+      lightboxEl.hidden = true;
+      document.body.style.overflow = '';
+      lightboxEl.setAttribute('aria-hidden', 'true');
+      if(active.lastFocus && typeof active.lastFocus.focus === 'function') active.lastFocus.focus();
+      active.lastFocus = null;
+    }
+  }
+
+  function showAt(nextIndex){
+    if(!Array.isArray(active.photos) || active.photos.length === 0) return;
+    const len = active.photos.length;
+    const i = ((nextIndex % len) + len) % len;
+    active.index = i;
+    const src = encodeURI(active.photos[i]);
+    lightboxImg.src = src;
+    lightboxImg.alt = active.title ? (active.title + ' photo ' + (i + 1)) : ('Photo ' + (i + 1));
+    lightboxCaption.textContent = (active.title ? (active.title + ' • ') : '') + (i + 1) + ' / ' + len;
+  }
+
+  function openLightbox({ photos, index, title }){
+    active.photos = Array.isArray(photos) ? photos : [];
+    active.title = String(title || '').trim();
+    setLightboxOpen(true);
+    showAt(Number.isFinite(index) ? index : 0);
+  }
+
+  function closeLightbox(){
+    setLightboxOpen(false);
+  }
+
+  function next(){ showAt(active.index + 1); }
+  function prev(){ showAt(active.index - 1); }
+
+  lightboxEl.addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    const action = btn ? btn.getAttribute('data-action') : null;
+    if(action === 'close') closeLightbox();
+    else if(action === 'next') next();
+    else if(action === 'prev') prev();
+  });
+
+  document.addEventListener('keydown', e => {
+    if(lightboxEl.hidden) return;
+    if(e.key === 'Escape'){ e.preventDefault(); closeLightbox(); }
+    else if(e.key === 'ArrowRight'){ e.preventDefault(); next(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); prev(); }
+  });
+
+  function computeScrollStep(track){
+    const first = track.querySelector('.thumb');
+    const thumbW = first ? first.getBoundingClientRect().width : 150;
+    const gap = parseFloat(getComputedStyle(track).gap || '0') || 0;
+    return Math.round((thumbW + gap) * 4);
+  }
+
+  async function hydrateGallery(galleryEl){
+    const manifestUrl = galleryEl.getAttribute('data-manifest');
+    const videoHref = galleryEl.getAttribute('data-video-href');
+    const videoThumb = galleryEl.getAttribute('data-video-thumb');
+    const track = galleryEl.querySelector('.gallery-track');
+    const btnPrev = galleryEl.querySelector('.gallery-nav.prev');
+    const btnNext = galleryEl.querySelector('.gallery-nav.next');
+    if(!manifestUrl || !track) return;
+
+    // Visible state so we can tell if hydration is running.
+    galleryEl.dataset.galleryState = 'loading';
+    track.innerHTML = '<div class="muted" style="padding:10px 2px;">Loading photos…</div>';
+
+    try{
+      const res = await fetch(manifestUrl, { cache: 'no-store' });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      const photos = Array.isArray(data?.photos) ? data.photos : [];
+      const title = String(data?.round || '').trim() || 'Photos';
+
+      const frag = document.createDocumentFragment();
+
+      // Optional video thumb (included in the same scrollable gallery)
+      if(videoHref && videoThumb){
+        const a = document.createElement('a');
+        a.className = 'thumb thumb-video';
+        a.href = videoHref;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.setAttribute('aria-label', 'Watch ' + title + ' highlight video');
+
+        const img = document.createElement('img');
+        img.className = 'thumb-img';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.alt = title + ' video thumbnail';
+        img.src = videoThumb;
+
+        const badge = document.createElement('span');
+        badge.className = 'thumb-badge';
+        badge.textContent = 'Video';
+
+        a.appendChild(img);
+        a.appendChild(badge);
+        frag.appendChild(a);
+      }
+
+      for(let i = 0; i < photos.length; i++){
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'thumb thumb-photo';
+        btn.setAttribute('aria-label', 'Open ' + title + ' photo ' + (i + 1) + ' of ' + photos.length);
+        btn.dataset.index = String(i);
+
+        const img = document.createElement('img');
+        img.className = 'thumb-img';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.draggable = false;
+        img.alt = title + ' thumbnail ' + (i + 1);
+        // Encode spaces and other safe URL chars, but keep it relative.
+        img.src = encodeURI(photos[i]);
+
+        const badge = document.createElement('span');
+        badge.className = 'thumb-badge';
+        badge.textContent = 'Photo';
+
+        btn.appendChild(img);
+        btn.appendChild(badge);
+        frag.appendChild(btn);
+      }
+
+      track.innerHTML = '';
+      track.appendChild(frag);
+      galleryEl.dataset.galleryState = 'ready';
+
+      track.addEventListener('click', e => {
+        const btn = e.target.closest('button.thumb-photo');
+        if(!btn) return;
+        const idx = Number(btn.dataset.index || 0);
+        openLightbox({ photos, index: idx, title });
+      });
+
+      const step = () => computeScrollStep(track);
+      if(btnPrev){
+        btnPrev.addEventListener('click', () => {
+          track.scrollBy({ left: -step(), behavior: 'smooth' });
+        });
+      }
+      if(btnNext){
+        btnNext.addEventListener('click', () => {
+          track.scrollBy({ left: step(), behavior: 'smooth' });
+        });
+      }
+    }catch(err){
+      // Keep layout stable but show a useful hint.
+      track.innerHTML = '<div class="muted" style="padding:10px 2px;">Photos unavailable (check server console for 404s).</div>';
+      galleryEl.dataset.galleryState = 'error';
+    }
+  }
+
+  galleryEls.forEach(el => { hydrateGallery(el); });
+}
+
 document.querySelectorAll('.tabs').forEach(group => {
   group.addEventListener('click', e => {
     const btn = e.target.closest('.tab');
@@ -575,12 +860,23 @@ document.querySelectorAll('#points .tabs .tab').forEach(btn => {
 const yearEl = document.getElementById('year');
 if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-// Smooth anchor scrolling
+function scrollToAnchorId(id){
+  if(!id) return;
+  const expander = window.__expandCollapsibleSection;
+  const el = (typeof expander === 'function') ? expander(id) : document.getElementById(id);
+  if(!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Smooth anchor scrolling + expand target section on mobile
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
-    const id = a.getAttribute('href').slice(1);
+    const href = a.getAttribute('href');
+    const id = href ? href.slice(1) : '';
     const el = document.getElementById(id);
-    if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    if(!el) return;
+    e.preventDefault();
+    scrollToAnchorId(id);
   });
 });
 
@@ -591,8 +887,21 @@ window.addEventListener('resize', scheduleEqualizeClassCardHeights);
 // Init hamburger nav after the DOM exists
 initMobileNav();
 
+// Mobile: collapse/expand sections (Classes stays open)
+initMobileCollapsibleSections();
+
+// If page loads with a hash, expand + scroll to it on mobile
+if(window.location && window.location.hash && window.location.hash.length > 1){
+  const id = window.location.hash.slice(1);
+  // Defer a tick so collapsible structure/state is applied first.
+  setTimeout(() => scrollToAnchorId(id), 0);
+}
+
 // Render current year (pre-season TBD) cards
 renderCurrentYearTbdStandings();
 
 // Render 2025 archive points table
 render2025PointsFromXlsx();
+
+// Past races photo galleries (thumb strip + lightbox)
+initPastRacesPhotoGalleries();
