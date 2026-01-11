@@ -687,10 +687,12 @@ function initPastRacesPhotoGalleries(){
     const i = ((nextIndex % len) + len) % len;
     active.index = i;
     const src = encodeURI(active.photos[i]);
+    const abs = (typeof URL !== 'undefined') ? (new URL(src, window.location.href)).toString() : src;
     lightboxImg.src = src;
     lightboxImg.alt = active.title ? (active.title + ' photo ' + (i + 1)) : ('Photo ' + (i + 1));
     lightboxCaption.textContent = (active.title ? (active.title + ' • ') : '') + (i + 1) + ' / ' + len;
-    lightboxOpen.href = src;
+    lightboxOpen.href = abs;
+    lightboxOpen.setAttribute('href', abs);
   }
 
   function openLightbox({ photos, index, title }){
