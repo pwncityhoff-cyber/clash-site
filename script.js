@@ -79,6 +79,12 @@ function renderCurrentYearTbdStandings(){
     return;
   }
 
+  function normalizeClassKey(s){
+    return String(s || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '');
+  }
+  // Lil' Titans is not a points class — keep it out of points standings.
+  const excludedStandingsClasses = new Set(['liltitans']);
+
   const classes = classCards.map(card => {
     const name = (card.querySelector('h3')?.textContent || '').trim();
     const tagEl = card.querySelector('.tag');
@@ -86,7 +92,7 @@ function renderCurrentYearTbdStandings(){
     const tagClass = tagEl ? tagEl.className : 'tag';
     const href = card.querySelector('a.btn.primary')?.getAttribute('href') || '';
     return { name, tag, tagClass, href };
-  }).filter(c => c.name);
+  }).filter(c => c.name && !excludedStandingsClasses.has(normalizeClassKey(c.name)));
 
   mount.innerHTML = '';
 
