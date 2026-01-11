@@ -389,6 +389,31 @@ tbody tr:hover{background:#0e0f13}
   text-align:center;
 }
 
+.lightbox-meta{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+}
+.lightbox-actions{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+.lightbox-open{
+  box-shadow:none;
+}
+
+/* Mobile: keep action button easy to hit */
+@media (max-width: 720px){
+  .lightbox-open{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+  }
+}
+
 .product{display:flex; gap:14px}
 .product .img{width:100px; height:100px; background:#13141a; border:1px solid var(--border); border-radius:10px}
 .price{font-weight:700}

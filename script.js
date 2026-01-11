@@ -656,7 +656,8 @@ function initPastRacesPhotoGalleries(){
   const lightboxEl = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
   const lightboxCaption = document.getElementById('lightbox-caption');
-  if(!lightboxEl || !lightboxImg || !lightboxCaption) return;
+  const lightboxOpen = document.getElementById('lightbox-open');
+  if(!lightboxEl || !lightboxImg || !lightboxCaption || !lightboxOpen) return;
 
   const active = {
     photos: [],
@@ -689,6 +690,7 @@ function initPastRacesPhotoGalleries(){
     lightboxImg.src = src;
     lightboxImg.alt = active.title ? (active.title + ' photo ' + (i + 1)) : ('Photo ' + (i + 1));
     lightboxCaption.textContent = (active.title ? (active.title + ' • ') : '') + (i + 1) + ' / ' + len;
+    lightboxOpen.href = src;
   }
 
   function openLightbox({ photos, index, title }){

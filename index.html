@@ -937,7 +937,20 @@
         <button class="btn lightbox-nav lightbox-prev" type="button" data-action="prev" aria-label="Previous photo">◀</button>
         <figure class="lightbox-figure">
           <img id="lightbox-img" class="lightbox-img" alt="" />
-          <figcaption id="lightbox-caption" class="muted"></figcaption>
+          <figcaption class="lightbox-meta">
+            <div id="lightbox-caption" class="muted"></div>
+            <div class="lightbox-actions">
+              <a
+                id="lightbox-open"
+                class="btn lightbox-open"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Open image in new tab
+              </a>
+            </div>
+          </figcaption>
         </figure>
         <button class="btn lightbox-nav lightbox-next" type="button" data-action="next" aria-label="Next photo">▶</button>
       </div>
