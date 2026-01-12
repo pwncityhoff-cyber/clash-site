@@ -156,9 +156,62 @@ th,td{border-bottom:1px solid var(--border); padding:10px 8px; text-align:left}
 th{color:#cbd5e1; font-weight:600; background:#101116}
 tbody tr:hover{background:#0e0f13}
 
-.schedule-item{display:flex; gap:16px; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--border); border-radius:12px; background:#0f1014}
-.schedule-item .meta{display:flex; gap:18px; align-items:center}
+/* Schedule layout */
+#schedule{
+  --schedule-card-h:112px;
+  --schedule-ticket-h:34px;
+}
+
+.schedule-item{position:relative}
+.schedule-card{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+  justify-content:space-between;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0f1014;
+}
+.schedule-card .meta{display:flex; gap:18px; align-items:center; min-width:0; flex:1}
+.schedule-card .meta > div{min-width:0}
 .pill{padding:6px 10px; border:1px solid var(--border); border-radius:999px; font-size:12px; color:var(--muted)}
+
+/* Ticket button: full width, attached under the card */
+.schedule-ticket-btn{
+  width:100%;
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+  height:var(--schedule-ticket-h);
+  padding:0 16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:-1px; /* tuck into the card border */
+}
+
+/* Desktop: force equal-sized tiles and consistent button placement */
+@media (min-width: 900px){
+  #schedule .schedule-card{height:var(--schedule-card-h)}
+
+  /* All tiles reserve the ticket space, even if no button */
+  #schedule .schedule-item{min-height:calc(var(--schedule-card-h) + var(--schedule-ticket-h))}
+  #schedule .schedule-item:not(.schedule-has-under-btn){padding-bottom:var(--schedule-ticket-h)}
+
+  /* Keep long titles/locations from changing card height */
+  #schedule .schedule-card .b700{
+    display:-webkit-box;
+    -webkit-box-orient:vertical;
+    -webkit-line-clamp:2;
+    line-clamp:2;
+    overflow:hidden;
+  }
+  #schedule .schedule-card .muted{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
 
 .media-grid{display:grid; gap:12px}
 @media(min-width:900px){.media-grid{grid-template-columns:repeat(4,1fr)}}
@@ -405,6 +458,48 @@ tbody tr:hover{background:#0e0f13}
   box-shadow:none;
 }
 
+/* Ticket modal (schedule "Buy Tickets") */
+.ticket-modal{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+}
+.ticket-modal[hidden]{display:none}
+.ticket-modal-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.78);
+}
+.ticket-modal-dialog{
+  position:relative;
+  margin:24px auto;
+  width:min(560px, calc(100% - 28px));
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(11,11,12,.92);
+  backdrop-filter: blur(10px);
+  box-shadow:var(--shadow);
+  padding:14px;
+  display:grid;
+  gap:12px;
+}
+.ticket-modal-close{
+  justify-self:end;
+}
+.ticket-modal-actions{
+  display:grid;
+  gap:10px;
+}
+.ticket-modal-actions .btn[aria-disabled="true"]{
+  opacity:.6;
+  cursor:not-allowed;
+  pointer-events:none;
+}
+@media (min-width: 520px){
+  .ticket-modal-actions{grid-template-columns:1fr 1fr}
+  .ticket-modal-actions .btn{justify-content:center; text-align:center}
+}
+
 /* Mobile: keep action button easy to hit */
 @media (max-width: 720px){
   .lightbox-open{
@@ -599,8 +694,8 @@ footer{padding:34px 0; color:var(--muted)}
   .tabs{flex-wrap:wrap}
   .tab{flex:1 1 auto}
 
-  .schedule-item{flex-direction:column; align-items:flex-start}
-  .schedule-item .meta{flex-wrap:wrap; gap:10px}
+  #schedule .schedule-card{flex-direction:column; align-items:flex-start}
+  #schedule .schedule-card .meta{flex-wrap:wrap; gap:10px}
 
   /* Prevent table overflow; allow horizontal scroll only when needed */
   table{display:block; overflow-x:auto; -webkit-overflow-scrolling:touch}

@@ -594,81 +594,107 @@
       <h2>Race Schedule</h2>
 
       <div class="grid cols-2">
-        <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">Rise of the Titans</div>
-              <div class="muted">Xtreme Raceway • Ferris, TX</div>
+        <div class="schedule-item schedule-has-under-btn">
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">Rise of the Titans</div>
+                <div class="muted">Xtreme Raceway • Ferris, TX</div>
+              </div>
+              <span class="pill">Mar 6-7</span>
             </div>
-            <span class="pill">Mar 6-7</span>
+            <a class="btn" href="events/round-1.html">Event Page</a>
           </div>
-          <a class="btn" href="#">Event Page</a>
+          <a
+            class="btn primary schedule-ticket-btn"
+            href="events/round-1.html#tickets"
+          >Buy Tickets</a>
         </div>
 
         <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">Popeyes</div>
-              <div class="muted">Texas Motorplex • Ennis, TX</div>
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">Popeyes</div>
+                <div class="muted">Texas Motorplex • Ennis, TX</div>
+              </div>
+              <span class="pill">Apr 17-18</span>
             </div>
-            <span class="pill">Apr 17-18</span>
+            <a class="btn" href="#">Event Page</a>
           </div>
-          <a class="btn" href="#">Event Page</a>
         </div>
 
         <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">Boddie Grudge Bowl</div>
-              <div class="muted">US60 Dragway • Hardingsburg, KY</div>
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">Boddie Grudge Bowl</div>
+                <div class="muted">US60 Dragway • Hardingsburg, KY</div>
+              </div>
+              <span class="pill">Jun 4-6</span>
             </div>
-            <span class="pill">Jun 4-6</span>
+            <a class="btn" href="#">Event Page</a>
           </div>
-          <a class="btn" href="#">Event Page</a>
+        </div>
+
+        <div class="schedule-item schedule-has-under-btn">
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">Clash of the Titans: Birth of a Titan</div>
+                <div class="muted">Texas Motorplex • Ennis, TX</div>
+              </div>
+              <span class="pill">Jul 17-18</span>
+            </div>
+            <a class="btn" href="events/round-4.html">Event Page</a>
+          </div>
+          <a
+            class="btn primary schedule-ticket-btn"
+            href="events/round-4.html#tickets"
+          >Buy Tickets</a>
         </div>
 
         <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">Clash of the Titans: Birth of a Titan</div>
-              <div class="muted">Texas Motorplex • Ennis, TX</div>
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">The Picnic, Hood 2 Hood</div>
+                <div class="muted">Texas Motorplex • Ennis, TX</div>
+              </div>
+              <span class="pill">Sep 17-19</span>
             </div>
-            <span class="pill">Jul 17-18</span>
+            <a class="btn" href="#">Event Page</a>
           </div>
-          <a class="btn" href="#">Event Page</a>
+        </div>
+
+        <div class="schedule-item schedule-has-under-btn">
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">War of the Titans</div>
+                <div class="muted">Evadale Raceway • Evadale, TX</div>
+              </div>
+              <span class="pill">Nov 13-14</span>
+            </div>
+            <a class="btn" href="events/round-6.html">Event Page</a>
+          </div>
+          <a
+            class="btn primary schedule-ticket-btn"
+            href="events/round-6.html#tickets"
+          >Buy Tickets</a>
         </div>
 
         <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">The Picnic, Hood 2 Hood</div>
-              <div class="muted">Texas Motorplex • Ennis, TX</div>
+          <div class="schedule-card">
+            <div class="meta">
+              <div>
+                <div class="b700">T&amp;E Streetcar Showdown: Year End Final</div>
+                <div class="muted">Texas Motorplex • Ennis, TX</div>
+              </div>
+              <span class="pill">Dec 5-6</span>
             </div>
-            <span class="pill">Sep 17-19</span>
+            <a class="btn" href="#">Event Page</a>
           </div>
-          <a class="btn" href="#">Event Page</a>
-        </div>
-
-        <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">War of the Titans</div>
-              <div class="muted">Evadale Raceway • Evadale, TX</div>
-            </div>
-            <span class="pill">Nov 13-14</span>
-          </div>
-          <a class="btn" href="#">Event Page</a>
-        </div>
-
-        <div class="schedule-item">
-          <div class="meta">
-            <div>
-              <div class="b700">T&amp;E Streetcar Showdown: Year End Final</div>
-              <div class="muted">Texas Motorplex • Ennis, TX</div>
-            </div>
-            <span class="pill">Dec 5-6</span>
-          </div>
-          <a class="btn" href="#">Event Page</a>
         </div>
       </div>
     </div>
@@ -963,6 +989,20 @@
           </figcaption>
         </figure>
         <button class="btn lightbox-nav lightbox-next" type="button" data-action="next" aria-label="Next photo">▶</button>
+      </div>
+    </div>
+
+    <!-- Ticket type picker (Schedule > Buy Tickets) -->
+    <div class="ticket-modal" id="ticket-modal" hidden aria-hidden="true">
+      <div class="ticket-modal-backdrop" data-action="close" aria-hidden="true"></div>
+      <div class="ticket-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ticket-modal-title">
+        <button class="btn ticket-modal-close" type="button" data-action="close" aria-label="Close ticket options">Close ✕</button>
+        <h3 id="ticket-modal-title">Choose your pass</h3>
+        <p class="muted" id="ticket-modal-subtitle">Select a ticket type.</p>
+        <div class="ticket-modal-actions">
+          <a class="btn primary" id="ticket-modal-ga" href="#">General Admission</a>
+          <a class="btn secondary" id="ticket-modal-rv" href="#">Racer/Vendor Passes</a>
+        </div>
       </div>
     </div>
 

@@ -841,6 +841,251 @@ function initPastRacesPhotoGalleries(){
   galleryEls.forEach(el => { hydrateGallery(el); });
 }
 
+// Schedule: ticket type modal for "Buy Tickets"
+function initScheduleTicketModal(){
+  const modal = document.getElementById('ticket-modal');
+  if(!modal) return;
+
+  const subtitle = document.getElementById('ticket-modal-subtitle');
+  const btnGa = document.getElementById('ticket-modal-ga');
+  const btnRv = document.getElementById('ticket-modal-rv');
+  if(!btnGa || !btnRv) return;
+
+  const active = {
+    isOpen: false,
+    lastFocus: null,
+    gaHref: '#',
+    rvHref: '#',
+  };
+
+  function setOpen(open){
+    active.isOpen = open;
+    if(open){
+      modal.hidden = false;
+      modal.setAttribute('aria-hidden', 'false');
+      active.lastFocus = document.activeElement;
+      document.body.style.overflow = 'hidden';
+      // Focus first choice
+      setTimeout(() => { try{ btnGa.focus(); }catch(_e){} }, 0);
+    }else{
+      modal.hidden = true;
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if(active.lastFocus && typeof active.lastFocus.focus === 'function') active.lastFocus.focus();
+      active.lastFocus = null;
+    }
+  }
+
+  function deriveLinksFromTrigger(trigger){
+    const rawHref = trigger ? (trigger.getAttribute('href') || '') : '';
+    let base;
+    try{
+      base = new URL(rawHref || '', window.location.href);
+    }catch(_e){
+      base = new URL(window.location.href);
+    }
+
+    // If the trigger points at a #tickets hash already, strip it for clean option hashes.
+    base.hash = '';
+
+    // Apply per-round GA links ONLY to the modal's GA option.
+    // (Keep schedule buttons pointing to local event pages.)
+    const gaByPath = {
+      '/events/round-1.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043450508',
+      '/events/round-4.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043548812',
+      '/events/round-6.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043647116',
+    };
+
+    const path = base.pathname || '';
+    const gaOverride = gaByPath[path] || '';
+
+    const ga = gaOverride || '#';
+
+    // Racer/Vendor passes: default to placeholder anchors until URLs are provided.
+    const rvUrl = new URL(base.toString());
+    rvUrl.hash = 'tickets-racer-vendor';
+
+    return { ga, rv: rvUrl.toString() };
+  }
+
+  function setDisabled(aEl, disabled){
+    if(disabled){
+      aEl.setAttribute('aria-disabled', 'true');
+      aEl.setAttribute('tabindex', '-1');
+    }else{
+      aEl.removeAttribute('aria-disabled');
+      aEl.removeAttribute('tabindex');
+    }
+  }
+
+  function getEventName(trigger){
+    const item = trigger ? trigger.closest('.schedule-item') : null;
+    const name = item ? (item.querySelector('.schedule-card .b700')?.textContent || '').trim() : '';
+    return name;
+  }
+
+  function openFromTrigger(trigger){
+    const { ga, rv } = deriveLinksFromTrigger(trigger);
+    active.gaHref = ga;
+    active.rvHref = rv;
+
+    btnGa.setAttribute('href', ga);
+    btnRv.setAttribute('href', rv);
+
+    const gaDisabled = (!ga || ga === '#');
+    const rvDisabled = (!rv || rv === '#');
+    setDisabled(btnGa, gaDisabled);
+    setDisabled(btnRv, rvDisabled);
+    btnRv.textContent = rvDisabled ? 'Racer/Vendor Passes (coming soon)' : 'Racer/Vendor Passes';
+
+    const name = getEventName(trigger);
+    if(subtitle){
+      subtitle.textContent = name ? ('Select a ticket type for ' + name + '.') : 'Select a ticket type.';
+    }
+
+    setOpen(true);
+  }
+
+  function close(){ setOpen(false); }
+
+  // Open modal when clicking "Buy Tickets" in schedule
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('a.schedule-ticket-btn');
+    if(!trigger) return;
+    // Only intercept on the homepage schedule section
+    if(!trigger.closest('#schedule')) return;
+    e.preventDefault();
+    openFromTrigger(trigger);
+  });
+
+  // Close / action handling inside modal
+  modal.addEventListener('click', (e) => {
+    const actionEl = e.target.closest('[data-action]');
+    const action = actionEl ? actionEl.getAttribute('data-action') : null;
+    if(action === 'close'){
+      e.preventDefault();
+      close();
+      return;
+    }
+
+    // Clicking the dim backdrop closes (anywhere outside the dialog)
+    if(e.target === modal.querySelector('.ticket-modal-backdrop')){
+      e.preventDefault();
+      close();
+    }
+  });
+
+  // Navigate + close when choosing an option
+  function bindNav(aEl, getHref){
+    aEl.addEventListener('click', (e) => {
+      if(aEl.getAttribute('aria-disabled') === 'true'){
+        e.preventDefault();
+        return;
+      }
+      const href = getHref();
+      if(!href || href === '#') return;
+      e.preventDefault();
+      close();
+      window.location.href = href;
+    });
+  }
+  bindNav(btnGa, () => active.gaHref);
+  bindNav(btnRv, () => active.rvHref);
+
+  // Close on ESC
+  document.addEventListener('keydown', (e) => {
+    if(modal.hidden) return;
+    if(e.key === 'Escape'){ e.preventDefault(); close(); }
+  });
+}
+
+// External links: always open in a new tab (safely)
+function initExternalLinksNewTab(){
+  function ensureRelTokens(a){
+    const tokens = String(a.getAttribute('rel') || '')
+      .split(/\s+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    if(!tokens.includes('noopener')) tokens.push('noopener');
+    if(!tokens.includes('noreferrer')) tokens.push('noreferrer');
+    a.setAttribute('rel', tokens.join(' '));
+  }
+
+  function shouldHandleAnchor(a){
+    if(!a || a.tagName !== 'A') return false;
+    if(a.hasAttribute('download')) return false;
+
+    const href = (a.getAttribute('href') || '').trim();
+    if(!href) return false;
+
+    // Skip in-page anchors + special schemes
+    const lower = href.toLowerCase();
+    if(lower.startsWith('#')) return false;
+    if(lower.startsWith('mailto:')) return false;
+    if(lower.startsWith('tel:')) return false;
+    if(lower.startsWith('javascript:')) return false;
+
+    // Only treat absolute http(s) links as "external"
+    let url;
+    try{
+      url = new URL(href, window.location.href);
+    }catch(_e){
+      return false;
+    }
+    if(url.protocol !== 'http:' && url.protocol !== 'https:') return false;
+
+    // If we can compare origins, do it. If opened as file://, treat all http(s) as external.
+    const origin = (window.location && typeof window.location.origin === 'string') ? window.location.origin : '';
+    if(origin && origin !== 'null'){
+      return url.origin !== origin;
+    }
+    return true;
+  }
+
+  function apply(root){
+    const anchors = (root && root.querySelectorAll)
+      ? Array.from(root.querySelectorAll('a[href]'))
+      : [];
+
+    for(const a of anchors){
+      // If author already set target, only ensure rel safety on _blank.
+      const existingTarget = (a.getAttribute('target') || '').trim();
+      if(existingTarget){
+        if(existingTarget === '_blank') ensureRelTokens(a);
+        continue;
+      }
+
+      if(!shouldHandleAnchor(a)) continue;
+
+      a.setAttribute('target', '_blank');
+      ensureRelTokens(a);
+    }
+  }
+
+  // Initial pass
+  apply(document);
+
+  // Cover any dynamically inserted content (e.g., injected cards/links)
+  if(typeof MutationObserver === 'undefined') return;
+  const body = document.body;
+  if(!body) return;
+
+  const observer = new MutationObserver((mutations) => {
+    for(const m of mutations){
+      if(m.type !== 'childList') continue;
+      for(const node of m.addedNodes){
+        if(!node) continue;
+        if(node.nodeType !== 1) continue; // ELEMENT_NODE
+        if(node.tagName === 'A') apply(node.parentElement || document);
+        else apply(node);
+      }
+    }
+  });
+
+  observer.observe(body, { childList: true, subtree: true });
+}
+
 document.querySelectorAll('.tabs').forEach(group => {
   group.addEventListener('click', e => {
     const btn = e.target.closest('.tab');
@@ -915,3 +1160,9 @@ render2025PointsFromXlsx();
 
 // Past races photo galleries (thumb strip + lightbox)
 initPastRacesPhotoGalleries();
+
+// Schedule: ticket picker modal
+initScheduleTicketModal();
+
+// External links should open a new tab
+initExternalLinksNewTab();
