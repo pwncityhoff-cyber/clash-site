@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>$25 Racer Rebate Program • Clash of the Titans</title>
+  <meta name="description" content="Buy $25+ from any Supporting Clash Sponsor and receive a $25 Clash Credit with valid proof of purchase. See program rules and details." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=20260112a" />
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="logo" href="index.html#home">
+        <img src="images/logo.png" alt="Clash of the Titans logo" />
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+        <span class="sr-only">Open menu</span>
+        <span class="nav-toggle-icon" aria-hidden="true"></span>
+      </button>
+      <nav id="primary-nav" class="nav-menu" aria-label="Primary">
+        <ul>
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#classes">Classes</a></li>
+          <li><a href="index.html#registration" class="cta-nav">Register</a></li>
+          <li><a href="index.html#schedule">Schedule</a></li>
+          <li><a href="index.html#points">Points</a></li>
+          <li><a href="index.html#media">Past Races</a></li>
+          <li><a href="index.html#store">Store</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="row between" style="align-items:flex-end; gap:12px">
+        <div>
+          <h2>$25 Racer Rebate Program</h2>
+          <p class="lead">Purchase from supporting sponsors — get rewarded for it.</p>
+        </div>
+        <div class="row" style="gap:10px">
+          <a class="btn" href="index.html#registration">Back to Registration</a>
+          <a class="btn primary" href="index.html#contact">Questions? Contact Us</a>
+        </div>
+      </div>
+
+      <div class="card doc-content" style="margin-top:16px">
+        <p><strong>Purchase $25 or more from any Supporting Clash Sponsor and receive a $25 Clash Credit</strong> with valid proof of purchase.</p>
+
+        <h3>Program Rules</h3>
+        <ul>
+          <li>Credits are issued 30 days after the completed race event</li>
+          <li>Purchases must be made within 30 days before or 30 days after the event</li>
+          <li>One receipt per class, per event</li>
+          <li>No duplicate receipts</li>
+          <li>Receipts must be clear and readable</li>
+        </ul>
+
+        <h3>Why This Matters</h3>
+        <p>This program proves real return on investment for the companies that support Nitro Dave’s Clash of the Titans.</p>
+        <p>When you submit a receipt, that purchase is reported directly to the sponsor. They see exactly how many racers supported them because they supported the Clash.</p>
+        <p><strong>Support those who support you — and get rewarded for it.</strong></p>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Submit Your Receipt</h3>
+        <p class="muted">Upload a clear photo or PDF of your receipt. We’ll review it and email you if we need anything else.</p>
+
+        <form
+          id="rebate-form"
+          class="form"
+          method="POST"
+          data-endpoint="https://script.google.com/macros/s/AKfycbyANOjfY2Ye0vSB0l7IG5FTY31s6QsIPAH3ENMHMCQ6h_4DwubDLNx1wHqc2dsMnSSC/exec"
+        >
+          <!-- Anti-spam honeypot -->
+          <div class="hp" aria-hidden="true">
+            <label>Company
+              <input type="text" name="company" tabindex="-1" autocomplete="off" />
+            </label>
+          </div>
+
+          <!-- Sent via Google Apps Script -->
+
+          <div class="form-grid cols-2">
+            <div class="field">
+              <label for="rebate-first-name">First Name</label>
+              <input id="rebate-first-name" name="first_name" type="text" autocomplete="given-name" required />
+            </div>
+
+            <div class="field">
+              <label for="rebate-last-name">Last Name</label>
+              <input id="rebate-last-name" name="last_name" type="text" autocomplete="family-name" required />
+            </div>
+          </div>
+
+          <div class="form-grid cols-2">
+            <div class="field">
+              <label for="rebate-email">Email</label>
+              <input id="rebate-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+            </div>
+
+            <div class="field">
+              <label for="rebate-purchase-date">Date of Sponsor Purchase</label>
+              <input id="rebate-purchase-date" name="purchase_date" type="date" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="rebate-receipt">Receipt Upload</label>
+            <input
+              id="rebate-receipt"
+              name="receipt"
+              type="file"
+              accept="image/*,.pdf"
+              required
+            />
+            <p class="muted" style="margin:8px 0 0">Accepted: JPG/PNG/HEIC or PDF. Make sure totals and date are readable.</p>
+          </div>
+
+          <div class="row between" style="align-items:center; gap:12px; margin-top:4px">
+            <button class="btn primary" type="submit" id="rebate-submit">Submit Receipt</button>
+            <div class="muted" id="rebate-status" role="status" aria-live="polite"></div>
+          </div>
+        </form>
+
+        <p class="muted" style="margin-top:12px">
+          Note: credits are issued 30 days after the completed race event.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p class="muted">© <span id="year"></span> Clash of the Titans • A Nitrous Outlet Series</p>
+    </div>
+    <script src="script.js?v=20260112a"></script>
+  </footer>
+</body>
+</html>

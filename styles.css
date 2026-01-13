@@ -520,6 +520,75 @@ footer{padding:34px 0; color:var(--muted)}
 .space{height:8px}
 .muted{color:#a9adb7}
 
+/* Forms */
+.form{display:grid; gap:12px}
+.form-grid{display:grid; gap:12px}
+@media (min-width: 720px){
+  .form-grid.cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}
+}
+.form label,
+.field label{
+  display:block;
+  font-weight:700;
+  margin:0 0 6px;
+  color:#e5e7eb;
+  letter-spacing:.2px;
+}
+
+.form input,
+.form select,
+.form textarea,
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#0f1014;
+  color:var(--text);
+  padding:12px 12px;
+  font:inherit;
+}
+.form input[type="file"]{padding:10px}
+.form input[type="date"]{color-scheme:dark}
+
+.form input::file-selector-button{
+  margin-right:10px;
+  border:1px solid var(--border);
+  background:rgba(20,20,23,.65);
+  color:var(--text);
+  border-radius:10px;
+  padding:10px 12px;
+  cursor:pointer;
+}
+.form input::file-selector-button:hover{background:rgba(20,20,23,.9)}
+.form input:focus,
+.form select:focus,
+.form textarea:focus,
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  outline:2px solid rgba(245,158,11,.55);
+  outline-offset:2px;
+}
+
+/* Submit row on mobile: full-width primary */
+@media (max-width: 720px){
+  .form .row.between{align-items:stretch}
+  .form .row.between > .btn.primary{width:100%; justify-content:center; text-align:center}
+}
+
+/* Honeypot (anti-spam) */
+.hp{
+  position:absolute;
+  left:-9999px;
+  top:auto;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  display:none !important;
+}
+
 /* Points pager (Previous Years standings) */
 .points-pager-controls{margin-bottom:10px}
 .points-pager-controls .btn[disabled]{opacity:.55; cursor:not-allowed; pointer-events:none}

@@ -1086,6 +1086,184 @@ function initExternalLinksNewTab(){
   observer.observe(body, { childList: true, subtree: true });
 }
 
+// Rebate: receipt submission form (posts to backend/form service; no mailto UI)
+function initRebateForm(){
+  const form = document.getElementById('rebate-form');
+  if(!form) return;
+
+  const statusEl = document.getElementById('rebate-status');
+  const submitBtn = document.getElementById('rebate-submit');
+
+  function setStatus(msg, isError){
+    if(!statusEl) return;
+    statusEl.textContent = msg || '';
+    statusEl.style.color = isError ? '#fecdd3' : '';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setStatus('', false);
+
+    // Prefer an explicit action= URL; fall back to data-endpoint for backwards compatibility.
+    const endpoint = String(form.getAttribute('action') || form.getAttribute('data-endpoint') || '').trim();
+    if(!endpoint || endpoint.includes('REPLACE_ME')){
+      setStatus('Form submission is not configured yet. Set rebate.html form action (or data-endpoint) to your form handler URL.', true);
+      return;
+    }
+
+    // Honeypot: if filled, silently accept.
+    const hp = form.querySelector('input[name="company"]');
+    if(hp && String(hp.value || '').trim()){
+      form.reset();
+      setStatus('Thanks! Your submission has been received.', false);
+      return;
+    }
+
+    const isGoogleScript = endpoint.includes('script.google.com/macros/s/');
+
+    const receiptInput = document.getElementById('rebate-receipt');
+    const receiptFile = receiptInput && receiptInput.files && receiptInput.files[0] ? receiptInput.files[0] : null;
+
+    // If targeting Google Apps Script, we send JSON + base64 file (no multipart).
+    // Apps Script Web Apps are happiest with JSON payloads from static sites.
+    const maxBytes = 8 * 1024 * 1024; // ~8MB; base64 expands size ~33%
+    if(isGoogleScript){
+      if(!receiptFile){
+        setStatus('Please attach your receipt file.', true);
+        return;
+      }
+      if(receiptFile.size > maxBytes){
+        setStatus('Receipt file is too large. Please upload a smaller image/PDF (max ~8MB).', true);
+        return;
+      }
+    }
+
+    const fd = isGoogleScript ? null : new FormData(form);
+
+    const prevText = submitBtn ? submitBtn.textContent : '';
+    if(submitBtn){
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting…';
+    }
+
+    try{
+      let res;
+
+      if(isGoogleScript){
+        setStatus('Uploading receipt…', false);
+
+        const readAsDataUrl = (file) => new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onerror = () => reject(new Error('Unable to read file.'));
+          r.onload = () => resolve(String(r.result || ''));
+          r.readAsDataURL(file);
+        });
+
+        const dataUrl = await readAsDataUrl(receiptFile);
+        const comma = dataUrl.indexOf(',');
+        const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : '';
+        const mime = String(receiptFile.type || '').trim() || 'application/octet-stream';
+
+        // Collect form fields
+        const firstName = String(document.getElementById('rebate-first-name')?.value || '').trim();
+        const lastName = String(document.getElementById('rebate-last-name')?.value || '').trim();
+        const email = String(document.getElementById('rebate-email')?.value || '').trim();
+        const purchaseDate = String(document.getElementById('rebate-purchase-date')?.value || '').trim();
+
+        const payload = {
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          purchase_date: purchaseDate,
+          receipt: {
+            filename: receiptFile.name || 'receipt',
+            mime,
+            base64,
+          },
+          meta: {
+            page: (window.location && window.location.href) ? window.location.href : '',
+            userAgent: (navigator && navigator.userAgent) ? navigator.userAgent : '',
+            submittedAt: new Date().toISOString(),
+          }
+        };
+
+        // IMPORTANT:
+        // Posting JSON with "Content-Type: application/json" triggers a CORS preflight (OPTIONS),
+        // and Google Apps Script web apps often don't handle OPTIONS in a way browsers accept.
+        // Send as text/plain to keep it a "simple request" (no preflight) and parse JSON server-side.
+        res = await fetch(endpoint, {
+          method: 'POST',
+          redirect: 'follow',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'text/plain;charset=utf-8',
+          },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch(endpoint, {
+          method: 'POST',
+          body: fd,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+      }
+
+      if(!res.ok){
+        let detail = '';
+        try{
+          const data = await res.json();
+          if(data && data.errors && data.errors.length){
+            detail = data.errors.map(er => er && er.message ? er.message : '').filter(Boolean).join(' ');
+          }
+        }catch(_e){
+          // ignore JSON parse errors
+        }
+        const msg = detail || ('Submission failed (' + res.status + ')');
+        // Helpful hint for common hosted form limitation.
+        if(msg.toLowerCase().includes('file uploads not permitted')){
+          throw new Error('This form endpoint does not allow file uploads on its current plan/settings. Enable file uploads (or upgrade), or switch to a provider that supports uploads (e.g., Getform).');
+        }
+        throw new Error(msg);
+      }
+
+      // If response is JSON, try to read it (helps when Apps Script returns { ok, message }).
+      try{
+        const ct = String(res.headers.get('content-type') || '');
+        if(ct.includes('application/json')){
+          const data = await res.json();
+          if(data && data.ok === false && data.message){
+            throw new Error(String(data.message));
+          }
+        }
+      }catch(err){
+        // If JSON parsing fails, ignore; if it's a real error, rethrow
+        if(err && err.message && String(err.message).toLowerCase().includes('unexpected token')){
+          // ignore
+        }else if(err instanceof Error){
+          throw err;
+        }
+      }
+
+      form.reset();
+      setStatus('Submitted! Watch your email for any follow-up questions.', false);
+    }catch(err){
+      const msg = (err && err.message) ? err.message : 'Unable to submit right now.';
+      if(String(msg).toLowerCase().includes('failed to fetch')){
+        setStatus('Unable to submit (network/CORS). If using Google Apps Script, confirm the deployment is a Web App with access set to "Anyone" or "Anyone with the link".', true);
+      } else {
+        setStatus(msg, true);
+      }
+    }finally{
+      if(submitBtn){
+        submitBtn.disabled = false;
+        submitBtn.textContent = prevText || 'Submit Receipt';
+      }
+    }
+  });
+}
+
 document.querySelectorAll('.tabs').forEach(group => {
   group.addEventListener('click', e => {
     const btn = e.target.closest('.tab');
@@ -1166,3 +1344,6 @@ initScheduleTicketModal();
 
 // External links should open a new tab
 initExternalLinksNewTab();
+
+// Rebate receipt submission form
+initRebateForm();
