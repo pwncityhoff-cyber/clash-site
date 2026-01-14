@@ -909,9 +909,9 @@ function initScheduleTicketModal(){
 
     const ga = gaOverride || '#';
 
-    // Racer/Vendor passes: default to placeholder anchors until URLs are provided.
-    const rvUrl = new URL(base.toString());
-    rvUrl.hash = 'tickets-racer-vendor';
+    // Racer/Vendor passes: route to the dedicated page (buttons are placeholders until URLs are provided).
+    const rvUrl = new URL('racer-vendor.html', window.location.href);
+    rvUrl.hash = 'passes';
 
     return { ga, rv: rvUrl.toString() };
   }

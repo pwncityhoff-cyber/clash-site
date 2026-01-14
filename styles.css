@@ -86,6 +86,11 @@ header{position:sticky; top:0; z-index:50; background:rgba(11,11,12,.8); backdro
 .buttons{display:flex; gap:12px; margin-top:18px}
 .btn{display:inline-block; border:1px solid var(--border); padding:12px 16px; border-radius:12px; font-weight:600; color:var(--text); background:var(--panel); box-shadow:var(--shadow)}
 .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0b0b0c}
+.btn[aria-disabled="true"]{
+  opacity:.6;
+  cursor:not-allowed;
+  pointer-events:none;
+}
 /* Ensure buttons inside class cards stay high-contrast */
 #classes .card .btn.primary{color:#fff}
 .btn.secondary{background:#0f1014}
