@@ -897,7 +897,15 @@ function initScheduleTicketModal(){
     };
 
     const path = base.pathname || '';
-    const gaOverride = gaByPath[path] || '';
+    // GitHub Pages project sites are served under "/<repo>/", so pathname becomes
+    // "/<repo>/events/round-x.html". Match by suffix so local + GH Pages both work.
+    let gaOverride = '';
+    for(const k in gaByPath){
+      if(Object.prototype.hasOwnProperty.call(gaByPath, k) && path.endsWith(k)){
+        gaOverride = gaByPath[k];
+        break;
+      }
+    }
 
     const ga = gaOverride || '#';
 
