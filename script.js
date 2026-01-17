@@ -118,7 +118,7 @@ function renderCurrentYearTbdStandings(){
 
     const tbd = document.createElement('div');
     tbd.className = 'standings-tbd-hero';
-    tbd.innerHTML = '<div class="tbd-badge">TBD</div><div class="muted">No points yet — check back after Round 1.</div>';
+  tbd.innerHTML = '<div class="tbd-badge">TBD</div><div class="muted">No points yet — check back after Race 1.</div>';
     el.appendChild(tbd);
 
     const sk = document.createElement('div');
@@ -406,10 +406,27 @@ function populatePastRaces2025Cards(parsed){
     const idx = Number(card.getAttribute('data-points-race-index'));
     if(!Number.isFinite(idx)) continue;
 
-    const eventName = (eventCols[idx] && eventCols[idx].name) ? eventCols[idx].name : ('Round ' + (idx + 1));
-
     const titleEl = card.querySelector('[data-role="race-title"]');
-    if(titleEl) titleEl.textContent = 'Round ' + (idx + 1) + ' • ' + eventName;
+    if(titleEl){
+      const raceNum = idx + 1;
+      const raceLabel = 'Race ' + raceNum;
+
+      // Prefer the XLSX column header name when present, but strip any leading "Round X"/"Race X"
+      // so we don't end up with "Race 1 • Round 1" or duplicate labels.
+      const raw = (eventCols[idx] && eventCols[idx].name) ? String(eventCols[idx].name).trim() : '';
+      const prefixRe = new RegExp('^(?:round|race)\\s*' + raceNum + '\\s*(?:[•\\-–—:|]\\s*)?', 'i');
+      const cleaned = raw.replace(prefixRe, '').trim();
+
+      if(cleaned){
+        titleEl.textContent = raceLabel + ' • ' + cleaned;
+      } else {
+        // Fall back to whatever is already in the HTML (but ensure the prefix says Race).
+        const existing = String(titleEl.textContent || '').trim();
+        const parts = existing.split('•').map(s => s.trim()).filter(Boolean);
+        const suffix = (parts.length > 1) ? parts.slice(1).join(' • ') : '';
+        titleEl.textContent = suffix ? (raceLabel + ' • ' + suffix) : raceLabel;
+      }
+    }
 
     // Top 3 earners (points > 0)
     const top3 = (parsed && parsed.entries ? parsed.entries : [])
@@ -841,170 +858,28 @@ function initPastRacesPhotoGalleries(){
   galleryEls.forEach(el => { hydrateGallery(el); });
 }
 
-// Schedule: ticket type modal for "Buy Tickets"
-function initScheduleTicketModal(){
-  const modal = document.getElementById('ticket-modal');
-  if(!modal) return;
+// Racer/Vendor: General Admission link (optionally derived from ?event=round-x)
+function initRacerVendorGeneralAdmissionLink(){
+  const gaLink = document.getElementById('ga-pass-link');
+  if(!gaLink) return;
 
-  const subtitle = document.getElementById('ticket-modal-subtitle');
-  const btnGa = document.getElementById('ticket-modal-ga');
-  const btnRv = document.getElementById('ticket-modal-rv');
-  if(!btnGa || !btnRv) return;
+  let url;
+  try{
+    url = new URL(window.location.href);
+  }catch(_e){
+    return;
+  }
 
-  const active = {
-    isOpen: false,
-    lastFocus: null,
-    gaHref: '#',
-    rvHref: '#',
+  const event = (url.searchParams.get('event') || '').trim().toLowerCase();
+
+  const gaByEvent = {
+    'round-1': 'https://nitrousoutlet.com/products/general-admission?variant=45632043450508',
+    'round-4': 'https://nitrousoutlet.com/products/general-admission?variant=45632043548812',
+    'round-6': 'https://nitrousoutlet.com/products/general-admission?variant=45632043647116',
   };
 
-  function setOpen(open){
-    active.isOpen = open;
-    if(open){
-      modal.hidden = false;
-      modal.setAttribute('aria-hidden', 'false');
-      active.lastFocus = document.activeElement;
-      document.body.style.overflow = 'hidden';
-      // Focus first choice
-      setTimeout(() => { try{ btnGa.focus(); }catch(_e){} }, 0);
-    }else{
-      modal.hidden = true;
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if(active.lastFocus && typeof active.lastFocus.focus === 'function') active.lastFocus.focus();
-      active.lastFocus = null;
-    }
-  }
-
-  function deriveLinksFromTrigger(trigger){
-    const rawHref = trigger ? (trigger.getAttribute('href') || '') : '';
-    let base;
-    try{
-      base = new URL(rawHref || '', window.location.href);
-    }catch(_e){
-      base = new URL(window.location.href);
-    }
-
-    // If the trigger points at a #tickets hash already, strip it for clean option hashes.
-    base.hash = '';
-
-    // Apply per-round GA links ONLY to the modal's GA option.
-    // (Keep schedule buttons pointing to local event pages.)
-    const gaByPath = {
-      '/events/round-1.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043450508',
-      '/events/round-4.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043548812',
-      '/events/round-6.html': 'https://nitrousoutlet.com/products/general-admission?variant=45632043647116',
-    };
-
-    const path = base.pathname || '';
-    // GitHub Pages project sites are served under "/<repo>/", so pathname becomes
-    // "/<repo>/events/round-x.html". Match by suffix so local + GH Pages both work.
-    let gaOverride = '';
-    for(const k in gaByPath){
-      if(Object.prototype.hasOwnProperty.call(gaByPath, k) && path.endsWith(k)){
-        gaOverride = gaByPath[k];
-        break;
-      }
-    }
-
-    const ga = gaOverride || '#';
-
-    // Racer/Vendor passes: route to the dedicated page (buttons are placeholders until URLs are provided).
-    const rvUrl = new URL('racer-vendor.html', window.location.href);
-    rvUrl.hash = 'passes';
-
-    return { ga, rv: rvUrl.toString() };
-  }
-
-  function setDisabled(aEl, disabled){
-    if(disabled){
-      aEl.setAttribute('aria-disabled', 'true');
-      aEl.setAttribute('tabindex', '-1');
-    }else{
-      aEl.removeAttribute('aria-disabled');
-      aEl.removeAttribute('tabindex');
-    }
-  }
-
-  function getEventName(trigger){
-    const item = trigger ? trigger.closest('.schedule-item') : null;
-    const name = item ? (item.querySelector('.schedule-card .b700')?.textContent || '').trim() : '';
-    return name;
-  }
-
-  function openFromTrigger(trigger){
-    const { ga, rv } = deriveLinksFromTrigger(trigger);
-    active.gaHref = ga;
-    active.rvHref = rv;
-
-    btnGa.setAttribute('href', ga);
-    btnRv.setAttribute('href', rv);
-
-    const gaDisabled = (!ga || ga === '#');
-    const rvDisabled = (!rv || rv === '#');
-    setDisabled(btnGa, gaDisabled);
-    setDisabled(btnRv, rvDisabled);
-    btnRv.textContent = rvDisabled ? 'Racer/Vendor Passes (coming soon)' : 'Racer/Vendor Passes';
-
-    const name = getEventName(trigger);
-    if(subtitle){
-      subtitle.textContent = name ? ('Select a ticket type for ' + name + '.') : 'Select a ticket type.';
-    }
-
-    setOpen(true);
-  }
-
-  function close(){ setOpen(false); }
-
-  // Open modal when clicking "Buy Tickets" in schedule
-  document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('a.schedule-ticket-btn');
-    if(!trigger) return;
-    // Only intercept on the homepage schedule section
-    if(!trigger.closest('#schedule')) return;
-    e.preventDefault();
-    openFromTrigger(trigger);
-  });
-
-  // Close / action handling inside modal
-  modal.addEventListener('click', (e) => {
-    const actionEl = e.target.closest('[data-action]');
-    const action = actionEl ? actionEl.getAttribute('data-action') : null;
-    if(action === 'close'){
-      e.preventDefault();
-      close();
-      return;
-    }
-
-    // Clicking the dim backdrop closes (anywhere outside the dialog)
-    if(e.target === modal.querySelector('.ticket-modal-backdrop')){
-      e.preventDefault();
-      close();
-    }
-  });
-
-  // Navigate + close when choosing an option
-  function bindNav(aEl, getHref){
-    aEl.addEventListener('click', (e) => {
-      if(aEl.getAttribute('aria-disabled') === 'true'){
-        e.preventDefault();
-        return;
-      }
-      const href = getHref();
-      if(!href || href === '#') return;
-      e.preventDefault();
-      close();
-      window.location.href = href;
-    });
-  }
-  bindNav(btnGa, () => active.gaHref);
-  bindNav(btnRv, () => active.rvHref);
-
-  // Close on ESC
-  document.addEventListener('keydown', (e) => {
-    if(modal.hidden) return;
-    if(e.key === 'Escape'){ e.preventDefault(); close(); }
-  });
+  const href = gaByEvent[event] || 'https://nitrousoutlet.com/products/general-admission';
+  gaLink.setAttribute('href', href);
 }
 
 // External links: always open in a new tab (safely)
@@ -1347,11 +1222,11 @@ render2025PointsFromXlsx();
 // Past races photo galleries (thumb strip + lightbox)
 initPastRacesPhotoGalleries();
 
-// Schedule: ticket picker modal
-initScheduleTicketModal();
-
 // External links should open a new tab
 initExternalLinksNewTab();
+
+// Racer/Vendor: GA link derived from query param
+initRacerVendorGeneralAdmissionLink();
 
 // Rebate receipt submission form
 initRebateForm();

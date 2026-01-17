@@ -35,7 +35,7 @@ header{position:sticky; top:0; z-index:50; background:rgba(11,11,12,.8); backdro
 .nav ul{list-style:none; display:flex; gap:18px; margin:0; padding:0;}
 .nav a{padding:10px 12px; border-radius:10px; color:var(--text)}
 .nav a:hover{background:var(--panel)}
-.cta-nav{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#0b0b0c !important; font-weight:700}
+.cta-nav{background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff !important; font-weight:700}
 
 .hero{position:relative; overflow:hidden; border-bottom:1px solid var(--border)}
 .hero-bg{
@@ -85,7 +85,12 @@ header{position:sticky; top:0; z-index:50; background:rgba(11,11,12,.8); backdro
 .hero p{color:var(--muted); max-width:60ch}
 .buttons{display:flex; gap:12px; margin-top:18px}
 .btn{display:inline-block; border:1px solid var(--border); padding:12px 16px; border-radius:12px; font-weight:600; color:var(--text); background:var(--panel); box-shadow:var(--shadow)}
-.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#0b0b0c}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff}
+.btn.primary.primary-dim{
+  /* “In-between” CTA: two-tone gold (no red), still high-contrast */
+  background:linear-gradient(135deg, #4f2404, #b78a19);
+  color:#fff;
+}
 .btn[aria-disabled="true"]{
   opacity:.6;
   cursor:not-allowed;
@@ -463,48 +468,6 @@ tbody tr:hover{background:#0e0f13}
   box-shadow:none;
 }
 
-/* Ticket modal (schedule "Buy Tickets") */
-.ticket-modal{
-  position:fixed;
-  inset:0;
-  z-index:9999;
-}
-.ticket-modal[hidden]{display:none}
-.ticket-modal-backdrop{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.78);
-}
-.ticket-modal-dialog{
-  position:relative;
-  margin:24px auto;
-  width:min(560px, calc(100% - 28px));
-  border:1px solid var(--border);
-  border-radius:16px;
-  background:rgba(11,11,12,.92);
-  backdrop-filter: blur(10px);
-  box-shadow:var(--shadow);
-  padding:14px;
-  display:grid;
-  gap:12px;
-}
-.ticket-modal-close{
-  justify-self:end;
-}
-.ticket-modal-actions{
-  display:grid;
-  gap:10px;
-}
-.ticket-modal-actions .btn[aria-disabled="true"]{
-  opacity:.6;
-  cursor:not-allowed;
-  pointer-events:none;
-}
-@media (min-width: 520px){
-  .ticket-modal-actions{grid-template-columns:1fr 1fr}
-  .ticket-modal-actions .btn{justify-content:center; text-align:center}
-}
-
 /* Mobile: keep action button easy to hit */
 @media (max-width: 720px){
   .lightbox-open{
@@ -525,6 +488,38 @@ footer{padding:34px 0; color:var(--muted)}
 .b700{font-weight:800}
 .space{height:8px}
 .muted{color:#a9adb7}
+
+/* Footer: social icon links */
+.social-links{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.social-link{
+  width:42px;
+  height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:rgba(20,20,23,.55);
+  color:var(--accent-2);
+  text-decoration:none;
+}
+.social-link:hover{
+  background:rgba(20,20,23,.9);
+}
+.social-link:focus-visible{
+  outline:2px solid var(--accent-2);
+  outline-offset:2px;
+}
+.social-link svg{
+  width:20px;
+  height:20px;
+  display:block;
+}
 
 /* Forms */
 .form{display:grid; gap:12px}
@@ -922,7 +917,7 @@ footer{padding:34px 0; color:var(--muted)}
   /* Keep Register CTA styling consistent with desktop */
   .nav-menu a.cta-nav{
     background:linear-gradient(90deg,var(--accent),var(--accent-2));
-    color:#0b0b0c !important;
+    color:#fff !important;
     font-weight:700;
     justify-content:center;
     border-color:transparent;
